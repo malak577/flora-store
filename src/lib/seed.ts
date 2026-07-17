@@ -1,0 +1,213 @@
+import type { Product } from "./types";
+
+export const SEED_PRODUCTS: Product[] = [
+  {
+    id: "cerave-foaming-cleanser",
+    brand: "CeraVe",
+    name: { en: "Foaming Facial Cleanser", ar: "غسول رغوي للوجه" },
+    description: {
+      en: "Gentle foaming cleanser for normal to oily skin with ceramides and niacinamide.",
+      ar: "غسول رغوي لطيف للبشرة العادية إلى الدهنية مع السيراميدات والنياسيناميد.",
+    },
+    benefits: {
+      en: ["Removes excess oil", "Restores skin barrier", "Non-comedogenic"],
+      ar: ["يزيل الزيوت الزائدة", "يعيد بناء حاجز البشرة", "لا يسد المسام"],
+    },
+    price: 850,
+    salePrice: 720,
+    image:
+      "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800&auto=format&fit=crop",
+    availability: "instant",
+  },
+  {
+    id: "cerave-moisturizing-cream",
+    brand: "CeraVe",
+    name: { en: "Moisturizing Cream", ar: "كريم مرطب" },
+    description: {
+      en: "24-hour hydration for dry to very dry skin.",
+      ar: "ترطيب على مدار 24 ساعة للبشرة الجافة إلى الجافة جداً.",
+    },
+    benefits: {
+      en: ["Deep hydration", "Ceramides 1, 3, 6-II", "Hyaluronic acid"],
+      ar: ["ترطيب عميق", "سيراميدات ١، ٣، ٦", "حمض الهيالورونيك"],
+    },
+    price: 1200,
+    image:
+      "https://images.unsplash.com/photo-1620916566398-39f1143ab7be?w=800&auto=format&fit=crop",
+    availability: "instant",
+  },
+  {
+    id: "ordinary-niacinamide",
+    brand: "The Ordinary",
+    name: { en: "Niacinamide 10% + Zinc 1%", ar: "نياسيناميد ١٠٪ + زنك ١٪" },
+    description: {
+      en: "High-strength vitamin & mineral blemish formula.",
+      ar: "تركيبة عالية التركيز من الفيتامينات والمعادن لعلاج العيوب.",
+    },
+    benefits: {
+      en: ["Reduces blemishes", "Balances sebum", "Minimizes pores"],
+      ar: ["يقلل العيوب", "يوازن إفراز الزيوت", "يقلص المسام"],
+    },
+    price: 520,
+    salePrice: 450,
+    image:
+      "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=800&auto=format&fit=crop",
+    availability: "instant",
+  },
+  {
+    id: "ordinary-hyaluronic",
+    brand: "The Ordinary",
+    name: { en: "Hyaluronic Acid 2% + B5", ar: "حمض الهيالورونيك ٢٪ + ب٥" },
+    description: {
+      en: "Multi-depth hydration serum.",
+      ar: "سيروم ترطيب متعدد المستويات.",
+    },
+    benefits: {
+      en: ["Plumps skin", "Deep hydration", "Lightweight texture"],
+      ar: ["يملأ البشرة", "ترطيب عميق", "قوام خفيف"],
+    },
+    price: 480,
+    image:
+      "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?w=800&auto=format&fit=crop",
+    availability: "preorder",
+  },
+  {
+    id: "ordinary-retinol",
+    brand: "The Ordinary",
+    name: { en: "Retinol 0.5% in Squalane", ar: "ريتينول ٠.٥٪ في السكوالين" },
+    description: {
+      en: "Anti-aging serum with pure retinol.",
+      ar: "سيروم لمكافحة الشيخوخة بالريتينول النقي.",
+    },
+    benefits: {
+      en: ["Reduces fine lines", "Smooths texture", "Evens tone"],
+      ar: ["يقلل الخطوط الدقيقة", "ينعم الملمس", "يوحد اللون"],
+    },
+    price: 690,
+    image:
+      "https://images.unsplash.com/photo-1570194065650-d99fb4bedf0a?w=800&auto=format&fit=crop",
+    availability: "instant",
+  },
+  {
+    id: "vichy-mineral-89",
+    brand: "Vichy",
+    name: { en: "Minéral 89 Booster", ar: "بوستر مينرال ٨٩" },
+    description: {
+      en: "Fortifying and plumping daily booster.",
+      ar: "بوستر يومي لتقوية وامتلاء البشرة.",
+    },
+    benefits: {
+      en: ["Strengthens barrier", "Plumping effect", "Volcanic water"],
+      ar: ["يقوي حاجز البشرة", "تأثير ممتلئ", "ماء بركاني"],
+    },
+    price: 1650,
+    salePrice: 1450,
+    image:
+      "https://images.unsplash.com/photo-1631730359585-38a4935cbec4?w=800&auto=format&fit=crop",
+    availability: "instant",
+  },
+  {
+    id: "vichy-liftactiv",
+    brand: "Vichy",
+    name: { en: "Liftactiv Vitamin C", ar: "ليفتاكتيف فيتامين سي" },
+    description: {
+      en: "15% pure vitamin C brightening serum.",
+      ar: "سيروم تفتيح بفيتامين سي النقي ١٥٪.",
+    },
+    benefits: {
+      en: ["Brightens skin", "Antioxidant protection", "Firms skin"],
+      ar: ["يفتح البشرة", "حماية مضادة للأكسدة", "يشد البشرة"],
+    },
+    price: 2100,
+    image:
+      "https://images.unsplash.com/photo-1608248511-6c37b9c40b3f?w=800&auto=format&fit=crop",
+    availability: "preorder",
+  },
+  {
+    id: "laroche-effaclar",
+    brand: "La Roche-Posay",
+    name: { en: "Effaclar Duo+", ar: "إيفاكلار ديو+" },
+    description: {
+      en: "Corrective unclogging care for blemish-prone skin.",
+      ar: "علاج تصحيحي للبشرة المعرضة للعيوب.",
+    },
+    benefits: {
+      en: ["Reduces blemishes", "Unclogs pores", "Prevents marks"],
+      ar: ["يقلل العيوب", "يفتح المسام", "يمنع الآثار"],
+    },
+    price: 980,
+    image:
+      "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=800&auto=format&fit=crop",
+    availability: "instant",
+  },
+  {
+    id: "laroche-anthelios",
+    brand: "La Roche-Posay",
+    name: { en: "Anthelios SPF 50+ Sunscreen", ar: "أنثيليوس واقي شمس SPF 50+" },
+    description: {
+      en: "Ultra-light fluid, invisible finish.",
+      ar: "سائل خفيف جداً بلمسة نهائية غير مرئية.",
+    },
+    benefits: {
+      en: ["Very high UVA/UVB protection", "Non-greasy", "Water resistant"],
+      ar: ["حماية عالية جداً", "غير دهني", "مقاوم للماء"],
+    },
+    price: 1350,
+    salePrice: 1150,
+    image:
+      "https://images.unsplash.com/photo-1556228578-8c89e6adf883?w=800&auto=format&fit=crop",
+    availability: "instant",
+  },
+  {
+    id: "bioderma-sensibio",
+    brand: "Bioderma",
+    name: { en: "Sensibio H2O Micellar Water", ar: "ماء ميسيلار سينسيبيو" },
+    description: {
+      en: "Gentle cleansing and makeup removing water for sensitive skin.",
+      ar: "ماء تنظيف لطيف ومزيل مكياج للبشرة الحساسة.",
+    },
+    benefits: {
+      en: ["Removes makeup", "Soothes sensitive skin", "No rinse required"],
+      ar: ["يزيل المكياج", "يهدئ البشرة الحساسة", "لا يتطلب شطف"],
+    },
+    price: 890,
+    image:
+      "https://images.unsplash.com/photo-1585652757141-8837d90b72d4?w=800&auto=format&fit=crop",
+    availability: "instant",
+  },
+  {
+    id: "eucerin-hyaluron",
+    brand: "Eucerin",
+    name: { en: "Hyaluron-Filler Day Cream", ar: "كريم نهاري هيالورون فيلر" },
+    description: {
+      en: "Anti-age filler day care with SPF 15.",
+      ar: "كريم نهاري لمكافحة التجاعيد مع SPF 15.",
+    },
+    benefits: {
+      en: ["Fills wrinkles", "Long-lasting hydration", "SPF 15"],
+      ar: ["يملأ التجاعيد", "ترطيب طويل الأمد", "حماية SPF 15"],
+    },
+    price: 1800,
+    image:
+      "https://images.unsplash.com/photo-1570194065650-d99fb4bedf0a?w=800&auto=format&fit=crop",
+    availability: "preorder",
+  },
+  {
+    id: "avene-thermal",
+    brand: "Avène",
+    name: { en: "Thermal Spring Water", ar: "ماء الينابيع الحراري" },
+    description: {
+      en: "Soothing spray for sensitive and irritated skin.",
+      ar: "بخاخ مهدئ للبشرة الحساسة والمتهيجة.",
+    },
+    benefits: {
+      en: ["Soothes irritation", "Reduces redness", "Sets makeup"],
+      ar: ["يهدئ التهيج", "يقلل الاحمرار", "يثبت المكياج"],
+    },
+    price: 650,
+    salePrice: 550,
+    image:
+      "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=800&auto=format&fit=crop",
+    availability: "instant",
+  },
+];
