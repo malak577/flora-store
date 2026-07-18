@@ -82,6 +82,18 @@ const DICT: Dict = {
     en: "Authentic skincare • Delivered across Egypt",
     ar: "منتجات أصلية • توصيل لجميع محافظات مصر",
   },
+  orders: { en: "Orders", ar: "الطلبات" },
+  order_id: { en: "Order", ar: "طلب" },
+  status: { en: "Status", ar: "الحالة" },
+  status_pending: { en: "Pending Review", ar: "قيد المراجعة" },
+  status_confirmed: { en: "Confirmed / Shipping", ar: "مؤكد / قيد الشحن" },
+  status_cancelled: { en: "Cancelled", ar: "ملغي" },
+  confirm_order_btn: { en: "Confirm Order", ar: "تأكيد الأوردر" },
+  cancel_order_btn: { en: "Cancel Order", ar: "إلغاء الأوردر" },
+  no_orders: { en: "No orders yet.", ar: "لا توجد طلبات بعد." },
+  customer: { en: "Customer", ar: "العميل" },
+  view_products: { en: "Products", ar: "المنتجات" },
+  delete_order: { en: "Delete order?", ar: "حذف الطلب؟" },
 };
 
 interface I18nCtx {
