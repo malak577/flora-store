@@ -57,6 +57,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (s) setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(s) });
       const a = localStorage.getItem(LS_ADMIN);
       if (a === "1") setIsAdmin(true);
+      const o = localStorage.getItem(LS_ORDERS);
+      if (o) setOrders(JSON.parse(o));
     } catch {}
     setHydrated(true);
   }, []);
