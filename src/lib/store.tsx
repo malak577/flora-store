@@ -157,6 +157,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       isAdmin,
       loginAdmin,
       logoutAdmin,
+      orders,
+      addOrder,
+      updateOrderStatus,
+      deleteOrder,
     }),
     [
       hydrated,
@@ -175,6 +179,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       isAdmin,
       loginAdmin,
       logoutAdmin,
+      orders,
+      addOrder,
+      updateOrderStatus,
+      deleteOrder,
     ],
   );
 
