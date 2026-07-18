@@ -3,8 +3,8 @@ import { Layout } from "@/components/Layout";
 import { useStore, priceOf } from "@/lib/store";
 import { useI18n, formatEGP } from "@/lib/i18n";
 import { useMemo, useState } from "react";
-import type { Product, Availability } from "@/lib/types";
-import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle } from "lucide-react";
+import type { Order, OrderStatus, Product, Availability } from "@/lib/types";
+import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle, Check, X, ClipboardList } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin")({
