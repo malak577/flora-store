@@ -54,7 +54,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const c = localStorage.getItem(LS_CART);
       if (c) setCart(JSON.parse(c));
       const s = localStorage.getItem(LS_SETTINGS);
-      if (s) setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(s) });
+      if (s) {
+        const parsed = JSON.parse(s);
+        if (parsed.adminPassword === "flora2026") parsed.adminPassword = "admin123";
+        setSettings({ ...DEFAULT_SETTINGS, ...parsed });
+      }
       const a = localStorage.getItem(LS_ADMIN);
       if (a === "1") setIsAdmin(true);
       const o = localStorage.getItem(LS_ORDERS);
