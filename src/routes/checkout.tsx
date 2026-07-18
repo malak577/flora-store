@@ -13,9 +13,9 @@ export const Route = createFileRoute("/checkout")({
 
 function Checkout() {
   const { t, lang } = useI18n();
-  const { cart, products, settings, clearCart, hydrated } = useStore();
+  const { cart, products, settings, clearCart, hydrated, addOrder } = useStore();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", phone: "", address: "", city: "" });
+  const [form, setForm] = useState({ name: "", phone: "", altPhone: "", governorate: "", address: "" });
 
   const items = cart
     .map((i) => ({ item: i, product: products.find((p) => p.id === i.productId) }))
