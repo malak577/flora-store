@@ -1,10 +1,21 @@
 import { Link } from "@tanstack/react-router";
+import { ShoppingBag } from "lucide-react";
+import { toast } from "sonner";
 import type { Product } from "@/lib/types";
 import { useI18n, formatEGP } from "@/lib/i18n";
+import { useStore } from "@/lib/store";
 
 export function ProductCard({ product }: { product: Product }) {
   const { t, lang } = useI18n();
+  const { addToCart } = useStore();
   const onSale = product.salePrice != null && product.salePrice < product.price;
+
+  const handleAdd = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    addToCart(product.id, 1);
+    toast.success(`${product.name[lang]} — ${t("add_to_cart")} ✓`);
+  };
 
   return (
     <Link
@@ -45,6 +56,13 @@ export function ProductCard({ product }: { product: Product }) {
             <span className="font-semibold">{formatEGP(product.price, lang)}</span>
           )}
         </div>
+        <button
+          onClick={handleAdd}
+          className="mt-3 w-full inline-flex items-center justify-center gap-2 rounded-full bg-primary text-primary-foreground py-2.5 text-xs font-medium hover:bg-primary/90 transition"
+        >
+          <ShoppingBag className="h-3.5 w-3.5" />
+          {t("add_to_cart")}
+        </button>
       </div>
     </Link>
   );
