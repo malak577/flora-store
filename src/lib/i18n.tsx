@@ -31,9 +31,12 @@ const DICT: Dict = {
   checkout: { en: "Checkout", ar: "إتمام الطلب" },
   continue_shopping: { en: "Continue Shopping", ar: "متابعة التسوق" },
   full_name: { en: "Full Name", ar: "الاسم بالكامل" },
-  phone: { en: "Phone Number", ar: "رقم الهاتف" },
-  address: { en: "Shipping Address", ar: "عنوان الشحن" },
+  phone: { en: "Primary Phone Number", ar: "رقم الهاتف الأساسي" },
+  alt_phone: { en: "Alternative Phone Number", ar: "رقم إضافي" },
+  governorate: { en: "Governorate", ar: "المحافظة" },
+  address: { en: "Detailed Address", ar: "العنوان بالتفصيل" },
   city: { en: "City / Governorate", ar: "المدينة / المحافظة" },
+  required_fields: { en: "Please fill in all required fields.", ar: "من فضلك املأ جميع الحقول المطلوبة." },
   deposit_notice: {
     en: "To confirm your order, please transfer a 50% deposit via Vodafone Cash to our number and send the transfer screenshot.",
     ar: "لتأكيد طلبك، من فضلك حوّل ٥٠٪ من قيمة الطلب على فودافون كاش وأرسل صورة إيصال التحويل.",
@@ -79,6 +82,18 @@ const DICT: Dict = {
     en: "Authentic skincare • Delivered across Egypt",
     ar: "منتجات أصلية • توصيل لجميع محافظات مصر",
   },
+  orders: { en: "Orders", ar: "الطلبات" },
+  order_id: { en: "Order", ar: "طلب" },
+  status: { en: "Status", ar: "الحالة" },
+  status_pending: { en: "Pending Review", ar: "قيد المراجعة" },
+  status_confirmed: { en: "Confirmed / Shipping", ar: "مؤكد / قيد الشحن" },
+  status_cancelled: { en: "Cancelled", ar: "ملغي" },
+  confirm_order_btn: { en: "Confirm Order", ar: "تأكيد الأوردر" },
+  cancel_order_btn: { en: "Cancel Order", ar: "إلغاء الأوردر" },
+  no_orders: { en: "No orders yet.", ar: "لا توجد طلبات بعد." },
+  customer: { en: "Customer", ar: "العميل" },
+  view_products: { en: "Products", ar: "المنتجات" },
+  delete_order: { en: "Delete order?", ar: "حذف الطلب؟" },
 };
 
 interface I18nCtx {

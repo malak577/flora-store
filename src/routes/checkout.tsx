@@ -4,6 +4,8 @@ import { useStore, priceOf } from "@/lib/store";
 import { useI18n, formatEGP } from "@/lib/i18n";
 import { useState } from "react";
 import { MessageCircle } from "lucide-react";
+import { toast } from "sonner";
+import type { Order } from "@/lib/types";
 
 export const Route = createFileRoute("/checkout")({
   component: Checkout,
@@ -11,9 +13,9 @@ export const Route = createFileRoute("/checkout")({
 
 function Checkout() {
   const { t, lang } = useI18n();
-  const { cart, products, settings, clearCart, hydrated } = useStore();
+  const { cart, products, settings, clearCart, hydrated, addOrder } = useStore();
   const navigate = useNavigate();
-  const [form, setForm] = useState({ name: "", phone: "", address: "", city: "" });
+  const [form, setForm] = useState({ name: "", phone: "", altPhone: "", governorate: "", address: "" });
 
   const items = cart
     .map((i) => ({ item: i, product: products.find((p) => p.id === i.productId) }))
@@ -44,8 +46,8 @@ function Checkout() {
       L === "ar" ? `طلب جديد من فلورا ستور\n---\n` : `New Order — Flora Store\n---\n`;
     const cust =
       L === "ar"
-        ? `الاسم: ${form.name}\nالهاتف: ${form.phone}\nالعنوان: ${form.address}, ${form.city}\n\nالمنتجات:\n`
-        : `Name: ${form.name}\nPhone: ${form.phone}\nAddress: ${form.address}, ${form.city}\n\nItems:\n`;
+        ? `الاسم: ${form.name}\nالهاتف: ${form.phone}\nرقم إضافي: ${form.altPhone}\nالمحافظة: ${form.governorate}\nالعنوان: ${form.address}\n\nالمنتجات:\n`
+        : `Name: ${form.name}\nPhone: ${form.phone}\nAlt Phone: ${form.altPhone}\nGovernorate: ${form.governorate}\nAddress: ${form.address}\n\nItems:\n`;
 
     const lines = items
       .map(({ item, product }) => {
@@ -67,7 +69,26 @@ function Checkout() {
 
   function onConfirm(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.name || !form.phone || !form.address || !form.city) return;
+    if (!form.name.trim() || !form.phone.trim() || !form.altPhone.trim() || !form.governorate.trim() || !form.address.trim()) {
+      toast.error(t("required_fields"));
+      return;
+    }
+    const order: Order = {
+      id: crypto.randomUUID(),
+      createdAt: Date.now(),
+      status: "pending",
+      customer: { ...form },
+      items: items.map(({ item, product }) => ({
+        productId: product.id,
+        nameEn: product.name.en,
+        nameAr: product.name.ar,
+        unitPrice: priceOf(product),
+        quantity: item.quantity,
+      })),
+      subtotal,
+      deposit,
+    };
+    addOrder(order);
     const msg = encodeURIComponent(buildWhatsAppMessage());
     const url = `https://wa.me/${settings.whatsapp}?text=${msg}`;
     clearCart();
@@ -84,8 +105,9 @@ function Checkout() {
           <form onSubmit={onConfirm} className="md:col-span-2 space-y-4">
             <Field label={t("full_name")} value={form.name} onChange={(v) => setForm({ ...form, name: v })} required />
             <Field label={t("phone")} value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} required type="tel" />
+            <Field label={t("alt_phone")} value={form.altPhone} onChange={(v) => setForm({ ...form, altPhone: v })} required type="tel" />
+            <Field label={t("governorate")} value={form.governorate} onChange={(v) => setForm({ ...form, governorate: v })} required />
             <Field label={t("address")} value={form.address} onChange={(v) => setForm({ ...form, address: v })} required />
-            <Field label={t("city")} value={form.city} onChange={(v) => setForm({ ...form, city: v })} required />
 
             <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5">
               <p className="text-sm leading-relaxed">{t("deposit_notice")}</p>

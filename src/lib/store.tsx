@@ -1,11 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import type { CartItem, Product, StoreSettings } from "./types";
+import type { CartItem, Order, OrderStatus, Product, StoreSettings } from "./types";
 import { SEED_PRODUCTS } from "./seed";
 
 const LS_PRODUCTS = "flora-products-v1";
 const LS_CART = "flora-cart-v1";
 const LS_SETTINGS = "flora-settings-v1";
 const LS_ADMIN = "flora-admin-v1";
+const LS_ORDERS = "flora-orders-v1";
 
 const DEFAULT_SETTINGS: StoreSettings = {
   whatsapp: "201018240350",
@@ -30,6 +31,10 @@ interface StoreCtx {
   isAdmin: boolean;
   loginAdmin: (pw: string) => boolean;
   logoutAdmin: () => void;
+  orders: Order[];
+  addOrder: (o: Order) => void;
+  updateOrderStatus: (id: string, status: OrderStatus) => void;
+  deleteOrder: (id: string) => void;
 }
 
 const Ctx = createContext<StoreCtx | null>(null);
@@ -40,6 +45,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [settings, setSettings] = useState<StoreSettings>(DEFAULT_SETTINGS);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
     try {
@@ -51,6 +57,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (s) setSettings({ ...DEFAULT_SETTINGS, ...JSON.parse(s) });
       const a = localStorage.getItem(LS_ADMIN);
       if (a === "1") setIsAdmin(true);
+      const o = localStorage.getItem(LS_ORDERS);
+      if (o) setOrders(JSON.parse(o));
     } catch {}
     setHydrated(true);
   }, []);
@@ -64,6 +72,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (hydrated) localStorage.setItem(LS_SETTINGS, JSON.stringify(settings));
   }, [settings, hydrated]);
+  useEffect(() => {
+    if (hydrated) localStorage.setItem(LS_ORDERS, JSON.stringify(orders));
+  }, [orders, hydrated]);
 
   const setProducts = useCallback((p: Product[]) => setProductsState(p), []);
   const addProduct = useCallback((p: Product) => setProductsState((s) => [p, ...s]), []);
@@ -117,6 +128,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(LS_ADMIN);
   }, []);
 
+  const addOrder = useCallback((o: Order) => setOrders((s) => [o, ...s]), []);
+  const updateOrderStatus = useCallback(
+    (id: string, status: OrderStatus) =>
+      setOrders((s) => s.map((o) => (o.id === id ? { ...o, status } : o))),
+    [],
+  );
+  const deleteOrder = useCallback(
+    (id: string) => setOrders((s) => s.filter((o) => o.id !== id)),
+    [],
+  );
+
   const value = useMemo(
     () => ({
       hydrated,
@@ -135,6 +157,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       isAdmin,
       loginAdmin,
       logoutAdmin,
+      orders,
+      addOrder,
+      updateOrderStatus,
+      deleteOrder,
     }),
     [
       hydrated,
@@ -153,6 +179,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       isAdmin,
       loginAdmin,
       logoutAdmin,
+      orders,
+      addOrder,
+      updateOrderStatus,
+      deleteOrder,
     ],
   );
 
