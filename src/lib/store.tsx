@@ -1,11 +1,12 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import type { CartItem, Product, StoreSettings } from "./types";
+import type { CartItem, Order, OrderStatus, Product, StoreSettings } from "./types";
 import { SEED_PRODUCTS } from "./seed";
 
 const LS_PRODUCTS = "flora-products-v1";
 const LS_CART = "flora-cart-v1";
 const LS_SETTINGS = "flora-settings-v1";
 const LS_ADMIN = "flora-admin-v1";
+const LS_ORDERS = "flora-orders-v1";
 
 const DEFAULT_SETTINGS: StoreSettings = {
   whatsapp: "201018240350",
