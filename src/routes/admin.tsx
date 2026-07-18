@@ -133,6 +133,10 @@ function Admin() {
           </div>
         )}
 
+        <OrdersPanel />
+
+
+
         <div className="overflow-x-auto rounded-2xl border border-border bg-card">
           <table className="w-full text-sm">
             <thead className="bg-secondary/50 text-start">
