@@ -45,6 +45,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [settings, setSettings] = useState<StoreSettings>(DEFAULT_SETTINGS);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
     try {
