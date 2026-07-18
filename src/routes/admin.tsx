@@ -65,7 +65,7 @@ function Admin() {
               {t("login")}
             </button>
             <p className="text-xs text-muted-foreground text-center">
-              Default: <code className="font-mono">flora2026</code> (change it in Settings)
+              Admin password: <code className="font-mono font-semibold text-foreground">admin123</code> — you can change it in Settings.
             </p>
           </form>
         </section>
