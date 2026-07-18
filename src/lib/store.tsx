@@ -72,6 +72,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (hydrated) localStorage.setItem(LS_SETTINGS, JSON.stringify(settings));
   }, [settings, hydrated]);
+  useEffect(() => {
+    if (hydrated) localStorage.setItem(LS_ORDERS, JSON.stringify(orders));
+  }, [orders, hydrated]);
 
   const setProducts = useCallback((p: Product[]) => setProductsState(p), []);
   const addProduct = useCallback((p: Product) => setProductsState((s) => [p, ...s]), []);
