@@ -8,8 +8,8 @@ const LS_SETTINGS = "flora-settings-v1";
 const LS_ADMIN = "flora-admin-v1";
 
 const DEFAULT_SETTINGS: StoreSettings = {
-  whatsapp: "201000000000",
-  vodafoneCash: "01000000000",
+  whatsapp: "201018240350",
+  vodafoneCash: "01018240350",
   adminPassword: "flora2026",
 };
 

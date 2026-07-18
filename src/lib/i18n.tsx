@@ -69,6 +69,11 @@ const DICT: Dict = {
   wa_number: { en: "WhatsApp number (international, no +)", ar: "رقم واتساب (دولي، بدون +)" },
   vf_number: { en: "Vodafone Cash number", ar: "رقم فودافون كاش" },
   order_details: { en: "Order Details", ar: "تفاصيل الطلب" },
+  wa_preview: { en: "WhatsApp message preview", ar: "معاينة رسالة واتساب" },
+  wa_preview_hint: {
+    en: "This is exactly what will be sent to your WhatsApp when a customer confirms an order (sample data shown).",
+    ar: "هذا هو نص الرسالة التي ستصلك على واتساب عند تأكيد الطلب (بيانات تجريبية).",
+  },
   wrong_password: { en: "Wrong password", ar: "كلمة مرور خاطئة" },
   footer_tagline: {
     en: "Authentic skincare • Delivered across Egypt",
