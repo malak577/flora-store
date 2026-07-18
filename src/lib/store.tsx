@@ -128,6 +128,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(LS_ADMIN);
   }, []);
 
+  const addOrder = useCallback((o: Order) => setOrders((s) => [o, ...s]), []);
+  const updateOrderStatus = useCallback(
+    (id: string, status: OrderStatus) =>
+      setOrders((s) => s.map((o) => (o.id === id ? { ...o, status } : o))),
+    [],
+  );
+  const deleteOrder = useCallback(
+    (id: string) => setOrders((s) => s.filter((o) => o.id !== id)),
+    [],
+  );
+
   const value = useMemo(
     () => ({
       hydrated,
