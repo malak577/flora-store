@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Layout } from "@/components/Layout";
-import { useStore } from "@/lib/store";
-import { useI18n } from "@/lib/i18n";
-import { useState } from "react";
+import { useStore, priceOf } from "@/lib/store";
+import { useI18n, formatEGP } from "@/lib/i18n";
+import { useMemo, useState } from "react";
 import type { Product, Availability } from "@/lib/types";
-import { Pencil, Trash2, Plus, LogOut, Settings as Cog } from "lucide-react";
+import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin")({
