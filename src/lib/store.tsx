@@ -31,6 +31,10 @@ interface StoreCtx {
   isAdmin: boolean;
   loginAdmin: (pw: string) => boolean;
   logoutAdmin: () => void;
+  orders: Order[];
+  addOrder: (o: Order) => void;
+  updateOrderStatus: (id: string, status: OrderStatus) => void;
+  deleteOrder: (id: string) => void;
 }
 
 const Ctx = createContext<StoreCtx | null>(null);
