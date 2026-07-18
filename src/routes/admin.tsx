@@ -129,6 +129,7 @@ function Admin() {
                 className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm"
               />
             </label>
+            <WhatsAppPreview />
           </div>
         )}
 
