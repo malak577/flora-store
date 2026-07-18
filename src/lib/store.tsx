@@ -11,7 +11,7 @@ const LS_ORDERS = "flora-orders-v1";
 const DEFAULT_SETTINGS: StoreSettings = {
   whatsapp: "201018240350",
   vodafoneCash: "01018240350",
-  adminPassword: "flora2026",
+  adminPassword: "admin123",
 };
 
 interface StoreCtx {
