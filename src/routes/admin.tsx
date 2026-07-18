@@ -319,3 +319,64 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
     </label>
   );
 }
+
+function WhatsAppPreview() {
+  const { t, lang } = useI18n();
+  const { cart, products, settings } = useStore();
+
+  const sampleItems = useMemo(() => {
+    const cartResolved = cart
+      .map((i) => ({ item: i, product: products.find((p) => p.id === i.productId) }))
+      .filter((x) => x.product) as { item: { productId: string; quantity: number }; product: Product }[];
+    if (cartResolved.length > 0) return { items: cartResolved, isSample: false };
+    const demo = products.slice(0, 2);
+    return {
+      items: demo.map((product) => ({ item: { productId: product.id, quantity: 1 }, product })),
+      isSample: true,
+    };
+  }, [cart, products]);
+
+  const sampleCustomer = sampleItems.isSample
+    ? { name: lang === "ar" ? "أحمد محمد" : "Ahmed Mohamed", phone: "01012345678", address: lang === "ar" ? "١٢ شارع النيل" : "12 Nile St", city: lang === "ar" ? "القاهرة" : "Cairo" }
+    : { name: lang === "ar" ? "اسم العميل" : "Customer name", phone: lang === "ar" ? "هاتف العميل" : "Customer phone", address: lang === "ar" ? "عنوان العميل" : "Customer address", city: lang === "ar" ? "المدينة" : "City" };
+
+  const subtotal = sampleItems.items.reduce((s, { item, product }) => s + priceOf(product) * item.quantity, 0);
+  const deposit = subtotal / 2;
+
+  const L = lang;
+  const header = L === "ar" ? `طلب جديد من فلورا ستور\n---\n` : `New Order — Flora Store\n---\n`;
+  const cust = L === "ar"
+    ? `الاسم: ${sampleCustomer.name}\nالهاتف: ${sampleCustomer.phone}\nالعنوان: ${sampleCustomer.address}, ${sampleCustomer.city}\n\nالمنتجات:\n`
+    : `Name: ${sampleCustomer.name}\nPhone: ${sampleCustomer.phone}\nAddress: ${sampleCustomer.address}, ${sampleCustomer.city}\n\nItems:\n`;
+  const lines = sampleItems.items
+    .map(({ item, product }) => `• ${product.name[L]} × ${item.quantity} — ${formatEGP(priceOf(product) * item.quantity, L)}`)
+    .join("\n");
+  const totals = L === "ar"
+    ? `\n\nالإجمالي: ${formatEGP(subtotal, L)}\nالمقدم المطلوب (٥٠٪): ${formatEGP(deposit, L)}\n\nيرجى تحويل ${formatEGP(deposit, L)} على فودافون كاش: ${settings.vodafoneCash}\nومن ثم إرفاق صورة إيصال التحويل هنا.`
+    : `\n\nTotal: ${formatEGP(subtotal, L)}\n50% Deposit Required: ${formatEGP(deposit, L)}\n\nPlease transfer ${formatEGP(deposit, L)} via Vodafone Cash to: ${settings.vodafoneCash}\nThen attach the payment screenshot here.`;
+
+  const message = header + cust + lines + totals;
+  const waUrl = `https://wa.me/${settings.whatsapp}?text=${encodeURIComponent(message)}`;
+
+  return (
+    <div className="mt-4 rounded-2xl border border-primary/30 bg-primary/5 p-4">
+      <div className="flex items-center gap-2 mb-2">
+        <MessageCircle className="h-4 w-4 text-primary" />
+        <span className="text-sm font-medium">{t("wa_preview")}</span>
+      </div>
+      <p className="text-xs text-muted-foreground mb-3">{t("wa_preview_hint")}</p>
+      <pre className="whitespace-pre-wrap rounded-xl bg-background border border-border p-3 text-xs leading-relaxed font-sans max-h-80 overflow-y-auto" dir={lang === "ar" ? "rtl" : "ltr"}>
+{message}
+      </pre>
+      <a
+        href={waUrl}
+        target="_blank"
+        rel="noreferrer"
+        className="mt-3 inline-flex items-center gap-2 rounded-full bg-emerald-600 text-white px-4 py-2 text-xs font-medium hover:bg-emerald-700"
+      >
+        <MessageCircle className="h-3.5 w-3.5" />
+        Test send to WhatsApp
+      </a>
+    </div>
+  );
+}
