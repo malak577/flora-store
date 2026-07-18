@@ -4,6 +4,8 @@ import { useStore, priceOf } from "@/lib/store";
 import { useI18n, formatEGP } from "@/lib/i18n";
 import { useState } from "react";
 import { MessageCircle } from "lucide-react";
+import { toast } from "sonner";
+import type { Order } from "@/lib/types";
 
 export const Route = createFileRoute("/checkout")({
   component: Checkout,
