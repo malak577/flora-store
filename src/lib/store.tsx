@@ -7,6 +7,7 @@ const LS_CART = "flora-cart-v1";
 const LS_SETTINGS = "flora-settings-v1";
 const LS_ADMIN = "flora-admin-v1";
 const LS_ORDERS = "flora-orders-v1";
+const LS_WISH = "flora-wishlist-v1";
 
 const DEFAULT_SETTINGS: StoreSettings = {
   whatsapp: "201018240350",
@@ -35,6 +36,8 @@ interface StoreCtx {
   addOrder: (o: Order) => void;
   updateOrderStatus: (id: string, status: OrderStatus) => void;
   deleteOrder: (id: string) => void;
+  wishlist: string[];
+  toggleWishlist: (id: string) => void;
 }
 
 const Ctx = createContext<StoreCtx | null>(null);
