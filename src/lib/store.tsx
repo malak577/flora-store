@@ -49,6 +49,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<StoreSettings>(DEFAULT_SETTINGS);
   const [isAdmin, setIsAdmin] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [wishlist, setWishlist] = useState<string[]>([]);
 
   useEffect(() => {
     try {
@@ -66,6 +67,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (a === "1") setIsAdmin(true);
       const o = localStorage.getItem(LS_ORDERS);
       if (o) setOrders(JSON.parse(o));
+      const w = localStorage.getItem(LS_WISH);
+      if (w) setWishlist(JSON.parse(w));
     } catch {}
     setHydrated(true);
   }, []);
@@ -82,6 +85,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (hydrated) localStorage.setItem(LS_ORDERS, JSON.stringify(orders));
   }, [orders, hydrated]);
+  useEffect(() => {
+    if (hydrated) localStorage.setItem(LS_WISH, JSON.stringify(wishlist));
+  }, [wishlist, hydrated]);
 
   const setProducts = useCallback((p: Product[]) => setProductsState(p), []);
   const addProduct = useCallback((p: Product) => setProductsState((s) => [p, ...s]), []);
@@ -143,6 +149,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   );
   const deleteOrder = useCallback(
     (id: string) => setOrders((s) => s.filter((o) => o.id !== id)),
+    [],
+  );
+
+  const toggleWishlist = useCallback(
+    (id: string) => setWishlist((w) => (w.includes(id) ? w.filter((x) => x !== id) : [...w, id])),
     [],
   );
 
