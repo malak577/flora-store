@@ -7,6 +7,7 @@ const LS_CART = "flora-cart-v1";
 const LS_SETTINGS = "flora-settings-v1";
 const LS_ADMIN = "flora-admin-v1";
 const LS_ORDERS = "flora-orders-v1";
+const LS_WISH = "flora-wishlist-v1";
 
 const DEFAULT_SETTINGS: StoreSettings = {
   whatsapp: "201018240350",
@@ -35,6 +36,8 @@ interface StoreCtx {
   addOrder: (o: Order) => void;
   updateOrderStatus: (id: string, status: OrderStatus) => void;
   deleteOrder: (id: string) => void;
+  wishlist: string[];
+  toggleWishlist: (id: string) => void;
 }
 
 const Ctx = createContext<StoreCtx | null>(null);
@@ -46,6 +49,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<StoreSettings>(DEFAULT_SETTINGS);
   const [isAdmin, setIsAdmin] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
+  const [wishlist, setWishlist] = useState<string[]>([]);
 
   useEffect(() => {
     try {
@@ -63,6 +67,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (a === "1") setIsAdmin(true);
       const o = localStorage.getItem(LS_ORDERS);
       if (o) setOrders(JSON.parse(o));
+      const w = localStorage.getItem(LS_WISH);
+      if (w) setWishlist(JSON.parse(w));
     } catch {}
     setHydrated(true);
   }, []);
@@ -79,6 +85,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (hydrated) localStorage.setItem(LS_ORDERS, JSON.stringify(orders));
   }, [orders, hydrated]);
+  useEffect(() => {
+    if (hydrated) localStorage.setItem(LS_WISH, JSON.stringify(wishlist));
+  }, [wishlist, hydrated]);
 
   const setProducts = useCallback((p: Product[]) => setProductsState(p), []);
   const addProduct = useCallback((p: Product) => setProductsState((s) => [p, ...s]), []);
@@ -143,6 +152,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const toggleWishlist = useCallback(
+    (id: string) => setWishlist((w) => (w.includes(id) ? w.filter((x) => x !== id) : [...w, id])),
+    [],
+  );
+
   const value = useMemo(
     () => ({
       hydrated,
@@ -165,6 +179,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addOrder,
       updateOrderStatus,
       deleteOrder,
+      wishlist,
+      toggleWishlist,
     }),
     [
       hydrated,
@@ -187,6 +203,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addOrder,
       updateOrderStatus,
       deleteOrder,
+      wishlist,
+      toggleWishlist,
     ],
   );
 
