@@ -1,4 +1,5 @@
 export type Availability = "instant" | "preorder";
+export type ProductBadge = "bestseller" | "new";
 
 export interface Product {
   id: string;
@@ -10,6 +11,10 @@ export interface Product {
   salePrice?: number; // EGP, optional
   image: string;
   availability: Availability;
+  rating?: number;      // 0-5
+  reviewCount?: number; // total reviews
+  badge?: ProductBadge; // extra badge besides Sale
+  bestSeller?: boolean; // for Best Sellers section
 }
 
 export interface CartItem {
@@ -18,8 +23,8 @@ export interface CartItem {
 }
 
 export interface StoreSettings {
-  whatsapp: string; // e.g. 201234567890 (no +)
-  vodafoneCash: string; // e.g. 01234567890
+  whatsapp: string;
+  vodafoneCash: string;
   adminPassword: string;
 }
 
