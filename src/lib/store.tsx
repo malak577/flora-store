@@ -179,6 +179,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addOrder,
       updateOrderStatus,
       deleteOrder,
+      wishlist,
+      toggleWishlist,
     }),
     [
       hydrated,
@@ -201,6 +203,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       addOrder,
       updateOrderStatus,
       deleteOrder,
+      wishlist,
+      toggleWishlist,
     ],
   );
 
