@@ -94,6 +94,24 @@ const DICT: Dict = {
   customer: { en: "Customer", ar: "العميل" },
   view_products: { en: "Products", ar: "المنتجات" },
   delete_order: { en: "Delete order?", ar: "حذف الطلب؟" },
+  usage: { en: "How to Use", ar: "طريقة الاستخدام" },
+  usage_en: { en: "Usage Instructions (English)", ar: "طريقة الاستخدام (إنجليزي)" },
+  usage_ar: { en: "Usage Instructions (Arabic)", ar: "طريقة الاستخدام (عربي)" },
+  client_feedback: { en: "Client Feedback", ar: "آراء العملاء" },
+  client_feedback_sub: {
+    en: "Real reviews from our customers on WhatsApp & Instagram",
+    ar: "آراء حقيقية من عملائنا على واتساب وإنستجرام",
+  },
+  no_feedback_yet: {
+    en: "No feedback added yet.",
+    ar: "لا توجد آراء بعد.",
+  },
+  feedback_manager: { en: "Client Feedback (Reviews)", ar: "آراء العملاء" },
+  upload_feedback: { en: "Upload review screenshots", ar: "رفع صور الآراء" },
+  upload_hint: {
+    en: "Upload WhatsApp or Instagram review screenshots. They will appear on the homepage gallery.",
+    ar: "ارفع سكرين شوت آراء العملاء من واتساب أو إنستجرام. ستظهر في المعرض بالصفحة الرئيسية.",
+  },
 };
 
 interface I18nCtx {
