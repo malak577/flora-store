@@ -8,6 +8,7 @@ const LS_SETTINGS = "flora-settings-v1";
 const LS_ADMIN = "flora-admin-v1";
 const LS_ORDERS = "flora-orders-v1";
 const LS_WISH = "flora-wishlist-v1";
+const LS_FEEDBACK = "flora-feedback-v1";
 
 const DEFAULT_SETTINGS: StoreSettings = {
   whatsapp: "201018240350",
@@ -38,6 +39,9 @@ interface StoreCtx {
   deleteOrder: (id: string) => void;
   wishlist: string[];
   toggleWishlist: (id: string) => void;
+  feedbackImages: string[];
+  addFeedbackImage: (dataUrl: string) => void;
+  removeFeedbackImage: (dataUrl: string) => void;
 }
 
 const Ctx = createContext<StoreCtx | null>(null);
@@ -50,6 +54,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [orders, setOrders] = useState<Order[]>([]);
   const [wishlist, setWishlist] = useState<string[]>([]);
+  const [feedbackImages, setFeedbackImages] = useState<string[]>([]);
 
   useEffect(() => {
     try {
@@ -69,6 +74,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (o) setOrders(JSON.parse(o));
       const w = localStorage.getItem(LS_WISH);
       if (w) setWishlist(JSON.parse(w));
+      const fb = localStorage.getItem(LS_FEEDBACK);
+      if (fb) setFeedbackImages(JSON.parse(fb));
     } catch {}
     setHydrated(true);
   }, []);
@@ -88,6 +95,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (hydrated) localStorage.setItem(LS_WISH, JSON.stringify(wishlist));
   }, [wishlist, hydrated]);
+  useEffect(() => {
+    if (hydrated) localStorage.setItem(LS_FEEDBACK, JSON.stringify(feedbackImages));
+  }, [feedbackImages, hydrated]);
 
   const setProducts = useCallback((p: Product[]) => setProductsState(p), []);
   const addProduct = useCallback((p: Product) => setProductsState((s) => [p, ...s]), []);
@@ -156,6 +166,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     (id: string) => setWishlist((w) => (w.includes(id) ? w.filter((x) => x !== id) : [...w, id])),
     [],
   );
+  const addFeedbackImage = useCallback(
+    (dataUrl: string) => setFeedbackImages((f) => (f.includes(dataUrl) ? f : [dataUrl, ...f])),
+    [],
+  );
+  const removeFeedbackImage = useCallback(
+    (dataUrl: string) => setFeedbackImages((f) => f.filter((x) => x !== dataUrl)),
+    [],
+  );
 
   const value = useMemo(
     () => ({
@@ -181,6 +199,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       deleteOrder,
       wishlist,
       toggleWishlist,
+      feedbackImages,
+      addFeedbackImage,
+      removeFeedbackImage,
     }),
     [
       hydrated,
@@ -205,6 +226,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       deleteOrder,
       wishlist,
       toggleWishlist,
+      feedbackImages,
+      addFeedbackImage,
+      removeFeedbackImage,
     ],
   );
 
