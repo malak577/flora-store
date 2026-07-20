@@ -4,7 +4,7 @@ import { useStore, priceOf } from "@/lib/store";
 import { useI18n, formatEGP } from "@/lib/i18n";
 import { useMemo, useState } from "react";
 import type { Order, OrderStatus, Product, Availability } from "@/lib/types";
-import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle, Check, X, ClipboardList } from "lucide-react";
+import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle, Check, X, ClipboardList, Upload, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin")({
@@ -134,6 +134,10 @@ function Admin() {
         )}
 
         <OrdersPanel />
+
+        <FeedbackPanel />
+
+
 
 
 
@@ -275,6 +279,12 @@ function EditorModal({
           </Row>
           <Row label={t("desc_ar")}>
             <textarea value={p.description.ar} onChange={(e) => setP({ ...p, description: { ...p.description, ar: e.target.value } })} className={inputCls} rows={3} dir="rtl" />
+          </Row>
+          <Row label={t("usage_en")}>
+            <textarea value={p.usage?.en ?? ""} onChange={(e) => setP({ ...p, usage: { en: e.target.value, ar: p.usage?.ar ?? "" } })} className={inputCls} rows={3} />
+          </Row>
+          <Row label={t("usage_ar")}>
+            <textarea value={p.usage?.ar ?? ""} onChange={(e) => setP({ ...p, usage: { en: p.usage?.en ?? "", ar: e.target.value } })} className={inputCls} rows={3} dir="rtl" />
           </Row>
           <Row label={t("benefits_en")}>
             <textarea value={benEn} onChange={(e) => setBenEn(e.target.value)} className={inputCls} rows={4} />
@@ -536,6 +546,83 @@ function OrderCard({
           <Trash2 className="h-3.5 w-3.5" />
         </button>
       </div>
+    </div>
+  );
+}
+
+function FeedbackPanel() {
+  const { t, lang } = useI18n();
+  const { feedbackImages, addFeedbackImage, removeFeedbackImage } = useStore();
+  const ar = lang === "ar";
+
+  const onFiles = async (files: FileList | null) => {
+    if (!files) return;
+    const list = Array.from(files);
+    let added = 0;
+    for (const f of list) {
+      if (!f.type.startsWith("image/")) continue;
+      if (f.size > 3 * 1024 * 1024) {
+        toast.error(ar ? `${f.name}: أكبر من 3MB` : `${f.name}: larger than 3MB`);
+        continue;
+      }
+      try {
+        const dataUrl: string = await new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = () => res(String(r.result));
+          r.onerror = () => rej(r.error);
+          r.readAsDataURL(f);
+        });
+        addFeedbackImage(dataUrl);
+        added++;
+      } catch {
+        toast.error(ar ? "فشل قراءة الملف" : "Failed to read file");
+      }
+    }
+    if (added > 0) toast.success(ar ? `تم رفع ${added}` : `Uploaded ${added}`);
+  };
+
+  return (
+    <div className="mb-8 rounded-2xl border border-border bg-card p-6">
+      <div className="flex items-center gap-2 mb-2">
+        <ImageIcon className="h-5 w-5 text-primary" />
+        <h2 className="font-serif text-xl">{t("feedback_manager")}</h2>
+        <span className="ml-auto text-xs text-muted-foreground">{feedbackImages.length}</span>
+      </div>
+      <p className="text-xs text-muted-foreground mb-4">{t("upload_hint")}</p>
+
+      <label className="flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-secondary/30 py-6 px-4 text-sm text-muted-foreground cursor-pointer hover:bg-secondary/60 hover:border-primary/40 transition">
+        <Upload className="h-4 w-4" />
+        {t("upload_feedback")}
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          className="hidden"
+          onChange={(e) => {
+            onFiles(e.target.files);
+            e.currentTarget.value = "";
+          }}
+        />
+      </label>
+
+      {feedbackImages.length > 0 && (
+        <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          {feedbackImages.map((src, i) => (
+            <div key={i} className="relative group rounded-xl overflow-hidden border border-border bg-secondary/30">
+              <img src={src} alt="" className="w-full h-40 object-cover" />
+              <button
+                onClick={() => {
+                  if (confirm(ar ? "حذف الصورة؟" : "Delete image?")) removeFeedbackImage(src);
+                }}
+                className="absolute top-2 end-2 h-8 w-8 rounded-full bg-rose-600 text-white opacity-0 group-hover:opacity-100 transition inline-flex items-center justify-center hover:bg-rose-700"
+                aria-label="Delete"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

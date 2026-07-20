@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Layout } from "@/components/Layout";
 import { ProductCard } from "@/components/ProductCard";
 import { FadeIn } from "@/components/FadeIn";
-import { Testimonials } from "@/components/Testimonials";
+import { FeedbackGallery } from "@/components/FeedbackGallery";
 import { useStore } from "@/lib/store";
 import { useI18n } from "@/lib/i18n";
 import { Sparkles, Truck, ShieldCheck, Award } from "lucide-react";
@@ -149,7 +149,7 @@ function Index() {
         </div>
       </section>
 
-      <Testimonials />
+      <FeedbackGallery />
     </Layout>
   );
 }

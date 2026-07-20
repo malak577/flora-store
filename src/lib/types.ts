@@ -6,6 +6,7 @@ export interface Product {
   brand: string;
   name: { en: string; ar: string };
   description: { en: string; ar: string };
+  usage?: { en: string; ar: string };
   benefits: { en: string[]; ar: string[] };
   price: number; // EGP
   salePrice?: number; // EGP, optional
