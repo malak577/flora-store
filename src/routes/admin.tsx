@@ -4,7 +4,7 @@ import { useStore, priceOf } from "@/lib/store";
 import { useI18n, formatEGP } from "@/lib/i18n";
 import { useMemo, useState } from "react";
 import type { Order, OrderStatus, Product, Availability } from "@/lib/types";
-import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle, Check, X, ClipboardList } from "lucide-react";
+import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle, Check, X, ClipboardList, Upload, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/admin")({
@@ -134,6 +134,10 @@ function Admin() {
         )}
 
         <OrdersPanel />
+
+        <FeedbackPanel />
+
+
 
 
 
@@ -275,6 +279,12 @@ function EditorModal({
           </Row>
           <Row label={t("desc_ar")}>
             <textarea value={p.description.ar} onChange={(e) => setP({ ...p, description: { ...p.description, ar: e.target.value } })} className={inputCls} rows={3} dir="rtl" />
+          </Row>
+          <Row label={t("usage_en")}>
+            <textarea value={p.usage?.en ?? ""} onChange={(e) => setP({ ...p, usage: { en: e.target.value, ar: p.usage?.ar ?? "" } })} className={inputCls} rows={3} />
+          </Row>
+          <Row label={t("usage_ar")}>
+            <textarea value={p.usage?.ar ?? ""} onChange={(e) => setP({ ...p, usage: { en: p.usage?.en ?? "", ar: e.target.value } })} className={inputCls} rows={3} dir="rtl" />
           </Row>
           <Row label={t("benefits_en")}>
             <textarea value={benEn} onChange={(e) => setBenEn(e.target.value)} className={inputCls} rows={4} />
