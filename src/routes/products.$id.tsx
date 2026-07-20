@@ -91,13 +91,22 @@ function ProductDetail() {
               </div>
             )}
 
+            {product.usage && (product.usage[lang]?.trim() ?? "") !== "" && (
+              <div className="mt-5 rounded-2xl border border-border bg-card p-5">
+                <h2 className="font-serif text-lg mb-2">{t("usage")}</h2>
+                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                  {product.usage[lang]}
+                </p>
+              </div>
+            )}
+
             <div className="mt-8 flex flex-wrap gap-3">
               <button
                 onClick={() => {
                   addToCart(product.id);
                   toast.success(lang === "ar" ? "تم الإضافة للسلة" : "Added to cart");
                 }}
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-7 py-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 hover:shadow-lg active:scale-95 transition-all duration-300"
               >
                 <ShoppingBag className="h-4 w-4" />
                 {t("add_to_cart")}
