@@ -71,34 +71,45 @@ function Checkout() {
     return header + cust + lines + totals;
   }
 
-  function onConfirm(e: React.FormEvent) {
+  async function onConfirm(e: React.FormEvent) {
     e.preventDefault();
     if (!form.name.trim() || !form.phone.trim() || !form.altPhone.trim() || !form.governorate.trim() || !form.address.trim()) {
       toast.error(t("required_fields"));
       return;
     }
-    const order: Order = {
-      id: crypto.randomUUID(),
-      createdAt: Date.now(),
-      status: "pending",
-      customer: { ...form },
-      items: items.map(({ item, product }) => ({
-        productId: product.id,
-        nameEn: product.name.en,
-        nameAr: product.name.ar,
-        unitPrice: priceOf(product),
-        quantity: item.quantity,
-      })),
-      subtotal,
-      deposit,
-    };
-    addOrder(order);
-    const msg = encodeURIComponent(buildWhatsAppMessage());
-    const url = `https://wa.me/${settings.whatsapp}?text=${msg}`;
-    clearCart();
-    window.open(url, "_blank");
-    navigate({ to: "/" });
+    setSubmitting(true);
+    try {
+      let receiptPath: string | null = null;
+      if (receipt) receiptPath = await uploadReceipt(receipt);
+
+      await createOrder({
+        customer: { ...form },
+        items: items.map(({ item, product }) => ({
+          productId: product.id,
+          nameEn: product.name.en,
+          nameAr: product.name.ar,
+          unitPrice: priceOf(product),
+          quantity: item.quantity,
+        })),
+        subtotal,
+        deposit,
+        paymentMethod: "vodafone_cash",
+        receiptPath,
+      });
+
+      const msg = encodeURIComponent(buildWhatsAppMessage());
+      const url = `https://wa.me/${settings.whatsapp}?text=${msg}`;
+      clearCart();
+      toast.success(ar ? "تم استلام طلبك بنجاح" : "Your order has been saved");
+      window.open(url, "_blank");
+      navigate({ to: "/" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    } finally {
+      setSubmitting(false);
+    }
   }
+
 
   return (
     <Layout>
