@@ -494,6 +494,36 @@ function OrdersPanel() {
   );
 }
 
+function ReceiptLink({ path, lang }: { path: string | null; lang: "en" | "ar" }) {
+  const [url, setUrl] = useState<string | null>(null);
+  const ar = lang === "ar";
+
+  useEffect(() => {
+    if (!path) return;
+    void receiptUrl(path).then(setUrl);
+  }, [path]);
+
+  if (!path) {
+    return (
+      <p className="mt-4 text-xs text-muted-foreground">
+        {ar ? "لم يتم إرفاق إيصال تحويل." : "No payment receipt attached."}
+      </p>
+    );
+  }
+
+  return (
+    <a
+      href={url ?? undefined}
+      target="_blank"
+      rel="noreferrer"
+      className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-secondary"
+    >
+      <Receipt className="h-3.5 w-3.5" />
+      {ar ? "عرض إيصال التحويل" : "View payment receipt"}
+    </a>
+  );
+}
+
 
 function OrderCard({
   order,
