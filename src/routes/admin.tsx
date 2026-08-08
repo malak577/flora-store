@@ -32,49 +32,66 @@ function Admin() {
     addProduct,
     updateProduct,
     deleteProduct,
-    isAdmin,
-    loginAdmin,
-    logoutAdmin,
     settings,
     updateSettings,
   } = useStore();
-  const [pw, setPw] = useState("");
+  const { session, isAdmin, loading, signOut } = useAdminAuth();
+  const ar = lang === "ar";
   const [editing, setEditing] = useState<Product | null>(null);
   const [showSettings, setShowSettings] = useState(false);
 
-  if (!isAdmin) {
+  if (loading) {
     return (
       <Layout>
-        <section className="mx-auto max-w-md px-4 py-20">
-          <h1 className="font-serif text-3xl mb-6 text-center">{t("admin_login")}</h1>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (!loginAdmin(pw)) toast.error(t("wrong_password"));
-            }}
-            className="space-y-4 rounded-2xl border border-border bg-card p-6"
+        <div className="mx-auto max-w-md px-4 py-24 text-center text-sm text-muted-foreground">
+          {ar ? "جارٍ التحميل..." : "Loading…"}
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!session) {
+    return (
+      <Layout>
+        <section className="mx-auto max-w-md px-4 py-20 text-center">
+          <h1 className="font-serif text-3xl mb-4">{t("admin_login")}</h1>
+          <p className="text-sm text-muted-foreground mb-6">
+            {ar
+              ? "سجّل الدخول بحساب الإدارة للوصول إلى لوحة التحكم."
+              : "Sign in with your admin account to open the dashboard."}
+          </p>
+          <Link
+            to="/auth"
+            className="inline-block rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:bg-primary/90 transition active:scale-[0.99]"
           >
-            <label className="block">
-              <span className="text-sm font-medium">{t("admin_password")}</span>
-              <input
-                type="password"
-                value={pw}
-                onChange={(e) => setPw(e.target.value)}
-                className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-                autoFocus
-              />
-            </label>
-            <button className="w-full rounded-full bg-primary text-primary-foreground py-3 text-sm font-medium hover:bg-primary/90">
-              {t("login")}
-            </button>
-            <p className="text-xs text-muted-foreground text-center">
-              Admin password: <code className="font-mono font-semibold text-foreground">admin123</code> — you can change it in Settings.
-            </p>
-          </form>
+            {t("login")}
+          </Link>
         </section>
       </Layout>
     );
   }
+
+  if (!isAdmin) {
+    return (
+      <Layout>
+        <section className="mx-auto max-w-md px-4 py-20 text-center">
+          <h1 className="font-serif text-3xl mb-4">{ar ? "غير مصرح" : "Not authorised"}</h1>
+          <p className="text-sm text-muted-foreground mb-6">
+            {ar
+              ? "هذا الحساب ليس لديه صلاحية الإدارة."
+              : "This account does not have admin access."}
+          </p>
+          <button
+            onClick={signOut}
+            className="rounded-full border border-border px-6 py-3 text-sm hover:bg-secondary"
+          >
+            {t("logout")}
+          </button>
+        </section>
+      </Layout>
+    );
+  }
+
 
   return (
     <Layout>
