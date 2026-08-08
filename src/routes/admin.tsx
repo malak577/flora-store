@@ -504,7 +504,7 @@ function OrderCard({
   onDelete,
   t,
 }: {
-  order: Order;
+  order: DbOrder;
   lang: "en" | "ar";
   statusLabel: string;
   onConfirm: () => void;
