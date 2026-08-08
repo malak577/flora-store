@@ -48,8 +48,9 @@ export async function createOrder(input: {
   deposit: number;
   paymentMethod: string;
   receiptPath: string | null;
-}): Promise<string> {
-  const { data, error } = await supabase
+}): Promise<void> {
+  // No .select() here: guests may INSERT but not SELECT orders (admin-only reads).
+  const { error } = await supabase
     .from("orders")
     .insert({
       status: "pending",
@@ -63,11 +64,8 @@ export async function createOrder(input: {
       deposit: input.deposit,
       payment_method: input.paymentMethod,
       receipt_path: input.receiptPath,
-    })
-    .select("id")
-    .single();
+    });
   if (error) throw error;
-  return data.id as string;
 }
 
 /** Admin-only: RLS blocks everyone else. */
