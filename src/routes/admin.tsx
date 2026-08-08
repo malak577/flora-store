@@ -568,6 +568,10 @@ function OrderCard({
         </div>
       </div>
 
+      <ReceiptLink path={order.receiptPath} lang={lang} />
+
+
+
       <div className="flex flex-wrap gap-2 mt-4">
         <button
           onClick={onConfirm}
