@@ -112,7 +112,7 @@ function Admin() {
               <Plus className="h-4 w-4" /> {t("add_product")}
             </button>
             <button
-              onClick={logoutAdmin}
+              onClick={() => void signOut()}
               className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm hover:bg-secondary"
             >
               <LogOut className="h-4 w-4" /> {t("logout")}
