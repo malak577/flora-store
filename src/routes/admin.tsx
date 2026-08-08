@@ -141,14 +141,12 @@ function Admin() {
                 className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm"
               />
             </label>
-            <label className="block">
-              <span className="text-sm font-medium">{t("admin_password")}</span>
-              <input
-                value={settings.adminPassword}
-                onChange={(e) => updateSettings({ adminPassword: e.target.value })}
-                className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm"
-              />
-            </label>
+            <p className="text-xs text-muted-foreground">
+              {lang === "ar"
+                ? "الدخول إلى لوحة التحكم يتم عبر حساب الإدارة (بريد إلكتروني وكلمة مرور)."
+                : "Dashboard access is controlled by your admin account (email + password)."}
+            </p>
+
             <WhatsAppPreview />
           </div>
         )}
