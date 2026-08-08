@@ -426,10 +426,36 @@ function statusStyle(status: OrderStatus) {
 
 function OrdersPanel() {
   const { t, lang } = useI18n();
-  const { orders, updateOrderStatus, deleteOrder } = useStore();
+  const ar = lang === "ar";
+  const [orders, setOrders] = useState<DbOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    try {
+      setOrders(await fetchOrders());
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const statusLabel = (s: OrderStatus) =>
     s === "pending" ? t("status_pending") : s === "confirmed" ? t("status_confirmed") : t("status_cancelled");
+
+  const changeStatus = async (id: string, status: OrderStatus) => {
+    try {
+      await setOrderStatus(id, status);
+      setOrders((list) => list.map((o) => (o.id === id ? { ...o, status } : o)));
+      toast.success(statusLabel(status));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
+  };
 
   return (
     <div className="mb-8 rounded-2xl border border-border bg-card p-6">
@@ -439,7 +465,9 @@ function OrdersPanel() {
         <span className="ml-auto text-xs text-muted-foreground">{orders.length}</span>
       </div>
 
-      {orders.length === 0 ? (
+      {loading ? (
+        <p className="text-sm text-muted-foreground text-center py-8">{ar ? "جارٍ التحميل..." : "Loading…"}</p>
+      ) : orders.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">{t("no_orders")}</p>
       ) : (
         <div className="space-y-4">
@@ -449,16 +477,13 @@ function OrdersPanel() {
               order={o}
               lang={lang}
               statusLabel={statusLabel(o.status)}
-              onConfirm={() => {
-                updateOrderStatus(o.id, "confirmed");
-                toast.success(t("status_confirmed"));
-              }}
-              onCancel={() => {
-                updateOrderStatus(o.id, "cancelled");
-                toast.success(t("status_cancelled"));
-              }}
+              onConfirm={() => void changeStatus(o.id, "confirmed")}
+              onCancel={() => void changeStatus(o.id, "cancelled")}
               onDelete={() => {
-                if (confirm(t("delete_order"))) deleteOrder(o.id);
+                if (!confirm(t("delete_order"))) return;
+                void removeOrder(o.id, o.receiptPath)
+                  .then(() => setOrders((list) => list.filter((x) => x.id !== o.id)))
+                  .catch((err) => toast.error(err instanceof Error ? err.message : String(err)));
               }}
               t={t}
             />
@@ -468,6 +493,7 @@ function OrdersPanel() {
     </div>
   );
 }
+
 
 function OrderCard({
   order,
