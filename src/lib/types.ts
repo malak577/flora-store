@@ -26,7 +26,7 @@ export interface CartItem {
 export interface StoreSettings {
   whatsapp: string;
   vodafoneCash: string;
-  adminPassword: string;
+  
 }
 
 export type OrderStatus = "pending" | "confirmed" | "cancelled";
