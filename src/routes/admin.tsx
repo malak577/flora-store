@@ -1,11 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Layout } from "@/components/Layout";
 import { useStore, priceOf } from "@/lib/store";
 import { useI18n, formatEGP } from "@/lib/i18n";
-import { useMemo, useState } from "react";
-import type { Order, OrderStatus, Product, Availability } from "@/lib/types";
-import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle, Check, X, ClipboardList, Upload, Image as ImageIcon } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { OrderStatus, Product, Availability } from "@/lib/types";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { fetchOrders, setOrderStatus, removeOrder, receiptUrl, type DbOrder } from "@/lib/orders";
+import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle, Check, X, ClipboardList, Upload, Image as ImageIcon, Receipt } from "lucide-react";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/admin")({
   component: Admin,
