@@ -3,9 +3,9 @@ import { Layout } from "@/components/Layout";
 import { useStore, priceOf } from "@/lib/store";
 import { useI18n, formatEGP } from "@/lib/i18n";
 import { useState } from "react";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Upload } from "lucide-react";
 import { toast } from "sonner";
-import type { Order } from "@/lib/types";
+import { createOrder, uploadReceipt } from "@/lib/orders";
 
 export const Route = createFileRoute("/checkout")({
   component: Checkout,
@@ -13,9 +13,13 @@ export const Route = createFileRoute("/checkout")({
 
 function Checkout() {
   const { t, lang } = useI18n();
-  const { cart, products, settings, clearCart, hydrated, addOrder } = useStore();
+  const ar = lang === "ar";
+  const { cart, products, settings, clearCart, hydrated } = useStore();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", phone: "", altPhone: "", governorate: "", address: "" });
+  const [receipt, setReceipt] = useState<File | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
 
   const items = cart
     .map((i) => ({ item: i, product: products.find((p) => p.id === i.productId) }))
