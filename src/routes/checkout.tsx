@@ -136,13 +136,31 @@ function Checkout() {
               </p>
             </div>
 
+            <label className="block rounded-2xl border border-dashed border-border p-5 cursor-pointer hover:bg-secondary/40 transition">
+              <span className="inline-flex items-center gap-2 text-sm font-medium">
+                <Upload className="h-4 w-4 text-primary" />
+                {ar ? "صورة إيصال التحويل (اختياري)" : "Payment receipt screenshot (optional)"}
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setReceipt(e.target.files?.[0] ?? null)}
+                className="mt-2 block w-full text-xs text-muted-foreground file:me-3 file:rounded-full file:border-0 file:bg-secondary file:px-4 file:py-2 file:text-xs"
+              />
+              {receipt && (
+                <span className="mt-2 block text-xs text-primary">{receipt.name}</span>
+              )}
+            </label>
+
             <button
               type="submit"
-              className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 text-white py-4 font-medium hover:bg-emerald-700 transition"
+              disabled={submitting}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 text-white py-4 font-medium hover:bg-emerald-700 transition disabled:opacity-60 active:scale-[0.99]"
             >
               <MessageCircle className="h-5 w-5" />
-              {t("confirm_order")}
+              {submitting ? (ar ? "جارٍ الإرسال..." : "Sending…") : t("confirm_order")}
             </button>
+
           </form>
 
           <aside className="rounded-2xl border border-border bg-card p-5 h-fit">
