@@ -1,11 +1,14 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Layout } from "@/components/Layout";
 import { useStore, priceOf } from "@/lib/store";
 import { useI18n, formatEGP } from "@/lib/i18n";
-import { useMemo, useState } from "react";
-import type { Order, OrderStatus, Product, Availability } from "@/lib/types";
-import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle, Check, X, ClipboardList, Upload, Image as ImageIcon } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import type { OrderStatus, Product, Availability } from "@/lib/types";
+import { useAdminAuth } from "@/hooks/useAdminAuth";
+import { fetchOrders, setOrderStatus, removeOrder, receiptUrl, type DbOrder } from "@/lib/orders";
+import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle, Check, X, ClipboardList, Upload, Image as ImageIcon, Receipt } from "lucide-react";
 import { toast } from "sonner";
+
 
 export const Route = createFileRoute("/admin")({
   component: Admin,
@@ -29,49 +32,66 @@ function Admin() {
     addProduct,
     updateProduct,
     deleteProduct,
-    isAdmin,
-    loginAdmin,
-    logoutAdmin,
     settings,
     updateSettings,
   } = useStore();
-  const [pw, setPw] = useState("");
+  const { session, isAdmin, loading, signOut } = useAdminAuth();
+  const ar = lang === "ar";
   const [editing, setEditing] = useState<Product | null>(null);
   const [showSettings, setShowSettings] = useState(false);
 
-  if (!isAdmin) {
+  if (loading) {
     return (
       <Layout>
-        <section className="mx-auto max-w-md px-4 py-20">
-          <h1 className="font-serif text-3xl mb-6 text-center">{t("admin_login")}</h1>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              if (!loginAdmin(pw)) toast.error(t("wrong_password"));
-            }}
-            className="space-y-4 rounded-2xl border border-border bg-card p-6"
+        <div className="mx-auto max-w-md px-4 py-24 text-center text-sm text-muted-foreground">
+          {ar ? "جارٍ التحميل..." : "Loading…"}
+        </div>
+      </Layout>
+    );
+  }
+
+  if (!session) {
+    return (
+      <Layout>
+        <section className="mx-auto max-w-md px-4 py-20 text-center">
+          <h1 className="font-serif text-3xl mb-4">{t("admin_login")}</h1>
+          <p className="text-sm text-muted-foreground mb-6">
+            {ar
+              ? "سجّل الدخول بحساب الإدارة للوصول إلى لوحة التحكم."
+              : "Sign in with your admin account to open the dashboard."}
+          </p>
+          <Link
+            to="/auth"
+            className="inline-block rounded-full bg-primary text-primary-foreground px-6 py-3 text-sm font-medium hover:bg-primary/90 transition active:scale-[0.99]"
           >
-            <label className="block">
-              <span className="text-sm font-medium">{t("admin_password")}</span>
-              <input
-                type="password"
-                value={pw}
-                onChange={(e) => setPw(e.target.value)}
-                className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
-                autoFocus
-              />
-            </label>
-            <button className="w-full rounded-full bg-primary text-primary-foreground py-3 text-sm font-medium hover:bg-primary/90">
-              {t("login")}
-            </button>
-            <p className="text-xs text-muted-foreground text-center">
-              Admin password: <code className="font-mono font-semibold text-foreground">admin123</code> — you can change it in Settings.
-            </p>
-          </form>
+            {t("login")}
+          </Link>
         </section>
       </Layout>
     );
   }
+
+  if (!isAdmin) {
+    return (
+      <Layout>
+        <section className="mx-auto max-w-md px-4 py-20 text-center">
+          <h1 className="font-serif text-3xl mb-4">{ar ? "غير مصرح" : "Not authorised"}</h1>
+          <p className="text-sm text-muted-foreground mb-6">
+            {ar
+              ? "هذا الحساب ليس لديه صلاحية الإدارة."
+              : "This account does not have admin access."}
+          </p>
+          <button
+            onClick={signOut}
+            className="rounded-full border border-border px-6 py-3 text-sm hover:bg-secondary"
+          >
+            {t("logout")}
+          </button>
+        </section>
+      </Layout>
+    );
+  }
+
 
   return (
     <Layout>
@@ -92,7 +112,7 @@ function Admin() {
               <Plus className="h-4 w-4" /> {t("add_product")}
             </button>
             <button
-              onClick={logoutAdmin}
+              onClick={() => void signOut()}
               className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm hover:bg-secondary"
             >
               <LogOut className="h-4 w-4" /> {t("logout")}
@@ -121,14 +141,12 @@ function Admin() {
                 className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm"
               />
             </label>
-            <label className="block">
-              <span className="text-sm font-medium">{t("admin_password")}</span>
-              <input
-                value={settings.adminPassword}
-                onChange={(e) => updateSettings({ adminPassword: e.target.value })}
-                className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm"
-              />
-            </label>
+            <p className="text-xs text-muted-foreground">
+              {lang === "ar"
+                ? "الدخول إلى لوحة التحكم يتم عبر حساب الإدارة (بريد إلكتروني وكلمة مرور)."
+                : "Dashboard access is controlled by your admin account (email + password)."}
+            </p>
+
             <WhatsAppPreview />
           </div>
         )}
@@ -408,10 +426,36 @@ function statusStyle(status: OrderStatus) {
 
 function OrdersPanel() {
   const { t, lang } = useI18n();
-  const { orders, updateOrderStatus, deleteOrder } = useStore();
+  const ar = lang === "ar";
+  const [orders, setOrders] = useState<DbOrder[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    try {
+      setOrders(await fetchOrders());
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const statusLabel = (s: OrderStatus) =>
     s === "pending" ? t("status_pending") : s === "confirmed" ? t("status_confirmed") : t("status_cancelled");
+
+  const changeStatus = async (id: string, status: OrderStatus) => {
+    try {
+      await setOrderStatus(id, status);
+      setOrders((list) => list.map((o) => (o.id === id ? { ...o, status } : o)));
+      toast.success(statusLabel(status));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    }
+  };
 
   return (
     <div className="mb-8 rounded-2xl border border-border bg-card p-6">
@@ -421,7 +465,9 @@ function OrdersPanel() {
         <span className="ml-auto text-xs text-muted-foreground">{orders.length}</span>
       </div>
 
-      {orders.length === 0 ? (
+      {loading ? (
+        <p className="text-sm text-muted-foreground text-center py-8">{ar ? "جارٍ التحميل..." : "Loading…"}</p>
+      ) : orders.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">{t("no_orders")}</p>
       ) : (
         <div className="space-y-4">
@@ -431,16 +477,13 @@ function OrdersPanel() {
               order={o}
               lang={lang}
               statusLabel={statusLabel(o.status)}
-              onConfirm={() => {
-                updateOrderStatus(o.id, "confirmed");
-                toast.success(t("status_confirmed"));
-              }}
-              onCancel={() => {
-                updateOrderStatus(o.id, "cancelled");
-                toast.success(t("status_cancelled"));
-              }}
+              onConfirm={() => void changeStatus(o.id, "confirmed")}
+              onCancel={() => void changeStatus(o.id, "cancelled")}
               onDelete={() => {
-                if (confirm(t("delete_order"))) deleteOrder(o.id);
+                if (!confirm(t("delete_order"))) return;
+                void removeOrder(o.id, o.receiptPath)
+                  .then(() => setOrders((list) => list.filter((x) => x.id !== o.id)))
+                  .catch((err) => toast.error(err instanceof Error ? err.message : String(err)));
               }}
               t={t}
             />
@@ -451,6 +494,37 @@ function OrdersPanel() {
   );
 }
 
+function ReceiptLink({ path, lang }: { path: string | null; lang: "en" | "ar" }) {
+  const [url, setUrl] = useState<string | null>(null);
+  const ar = lang === "ar";
+
+  useEffect(() => {
+    if (!path) return;
+    void receiptUrl(path).then(setUrl);
+  }, [path]);
+
+  if (!path) {
+    return (
+      <p className="mt-4 text-xs text-muted-foreground">
+        {ar ? "لم يتم إرفاق إيصال تحويل." : "No payment receipt attached."}
+      </p>
+    );
+  }
+
+  return (
+    <a
+      href={url ?? undefined}
+      target="_blank"
+      rel="noreferrer"
+      className="mt-4 inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs hover:bg-secondary"
+    >
+      <Receipt className="h-3.5 w-3.5" />
+      {ar ? "عرض إيصال التحويل" : "View payment receipt"}
+    </a>
+  );
+}
+
+
 function OrderCard({
   order,
   lang,
@@ -460,7 +534,7 @@ function OrderCard({
   onDelete,
   t,
 }: {
-  order: Order;
+  order: DbOrder;
   lang: "en" | "ar";
   statusLabel: string;
   onConfirm: () => void;
@@ -523,6 +597,10 @@ function OrderCard({
           </ul>
         </div>
       </div>
+
+      <ReceiptLink path={order.receiptPath} lang={lang} />
+
+
 
       <div className="flex flex-wrap gap-2 mt-4">
         <button

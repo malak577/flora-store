@@ -3,9 +3,9 @@ import { Layout } from "@/components/Layout";
 import { useStore, priceOf } from "@/lib/store";
 import { useI18n, formatEGP } from "@/lib/i18n";
 import { useState } from "react";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Upload } from "lucide-react";
 import { toast } from "sonner";
-import type { Order } from "@/lib/types";
+import { createOrder, uploadReceipt } from "@/lib/orders";
 
 export const Route = createFileRoute("/checkout")({
   component: Checkout,
@@ -13,9 +13,13 @@ export const Route = createFileRoute("/checkout")({
 
 function Checkout() {
   const { t, lang } = useI18n();
-  const { cart, products, settings, clearCart, hydrated, addOrder } = useStore();
+  const ar = lang === "ar";
+  const { cart, products, settings, clearCart, hydrated } = useStore();
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: "", phone: "", altPhone: "", governorate: "", address: "" });
+  const [receipt, setReceipt] = useState<File | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
 
   const items = cart
     .map((i) => ({ item: i, product: products.find((p) => p.id === i.productId) }))
@@ -67,34 +71,45 @@ function Checkout() {
     return header + cust + lines + totals;
   }
 
-  function onConfirm(e: React.FormEvent) {
+  async function onConfirm(e: React.FormEvent) {
     e.preventDefault();
     if (!form.name.trim() || !form.phone.trim() || !form.altPhone.trim() || !form.governorate.trim() || !form.address.trim()) {
       toast.error(t("required_fields"));
       return;
     }
-    const order: Order = {
-      id: crypto.randomUUID(),
-      createdAt: Date.now(),
-      status: "pending",
-      customer: { ...form },
-      items: items.map(({ item, product }) => ({
-        productId: product.id,
-        nameEn: product.name.en,
-        nameAr: product.name.ar,
-        unitPrice: priceOf(product),
-        quantity: item.quantity,
-      })),
-      subtotal,
-      deposit,
-    };
-    addOrder(order);
-    const msg = encodeURIComponent(buildWhatsAppMessage());
-    const url = `https://wa.me/${settings.whatsapp}?text=${msg}`;
-    clearCart();
-    window.open(url, "_blank");
-    navigate({ to: "/" });
+    setSubmitting(true);
+    try {
+      let receiptPath: string | null = null;
+      if (receipt) receiptPath = await uploadReceipt(receipt);
+
+      await createOrder({
+        customer: { ...form },
+        items: items.map(({ item, product }) => ({
+          productId: product.id,
+          nameEn: product.name.en,
+          nameAr: product.name.ar,
+          unitPrice: priceOf(product),
+          quantity: item.quantity,
+        })),
+        subtotal,
+        deposit,
+        paymentMethod: "vodafone_cash",
+        receiptPath,
+      });
+
+      const msg = encodeURIComponent(buildWhatsAppMessage());
+      const url = `https://wa.me/${settings.whatsapp}?text=${msg}`;
+      clearCart();
+      toast.success(ar ? "تم استلام طلبك بنجاح" : "Your order has been saved");
+      window.open(url, "_blank");
+      navigate({ to: "/" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : String(err));
+    } finally {
+      setSubmitting(false);
+    }
   }
+
 
   return (
     <Layout>
@@ -121,13 +136,31 @@ function Checkout() {
               </p>
             </div>
 
+            <label className="block rounded-2xl border border-dashed border-border p-5 cursor-pointer hover:bg-secondary/40 transition">
+              <span className="inline-flex items-center gap-2 text-sm font-medium">
+                <Upload className="h-4 w-4 text-primary" />
+                {ar ? "صورة إيصال التحويل (اختياري)" : "Payment receipt screenshot (optional)"}
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setReceipt(e.target.files?.[0] ?? null)}
+                className="mt-2 block w-full text-xs text-muted-foreground file:me-3 file:rounded-full file:border-0 file:bg-secondary file:px-4 file:py-2 file:text-xs"
+              />
+              {receipt && (
+                <span className="mt-2 block text-xs text-primary">{receipt.name}</span>
+              )}
+            </label>
+
             <button
               type="submit"
-              className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 text-white py-4 font-medium hover:bg-emerald-700 transition"
+              disabled={submitting}
+              className="w-full inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 text-white py-4 font-medium hover:bg-emerald-700 transition disabled:opacity-60 active:scale-[0.99]"
             >
               <MessageCircle className="h-5 w-5" />
-              {t("confirm_order")}
+              {submitting ? (ar ? "جارٍ الإرسال..." : "Sending…") : t("confirm_order")}
             </button>
+
           </form>
 
           <aside className="rounded-2xl border border-border bg-card p-5 h-fit">
