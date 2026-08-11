@@ -2,10 +2,10 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Layout } from "@/components/Layout";
 import { useStore, priceOf } from "@/lib/store";
 import { useI18n, formatEGP } from "@/lib/i18n";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { MessageCircle, Upload } from "lucide-react";
 import { toast } from "sonner";
-import { createOrder, uploadReceipt } from "@/lib/orders";
+import { createOrder, friendlyError, newClientOrderId, uploadReceipt } from "@/lib/orders";
 
 export const Route = createFileRoute("/checkout")({
   component: Checkout,
@@ -19,6 +19,8 @@ function Checkout() {
   const [form, setForm] = useState({ name: "", phone: "", altPhone: "", governorate: "", address: "" });
   const [receipt, setReceipt] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const clientOrderIdRef = useRef(newClientOrderId());
+
 
 
   const items = cart
@@ -73,25 +75,31 @@ function Checkout() {
 
   async function onConfirm(e: React.FormEvent) {
     e.preventDefault();
+    if (submitting) return;
     if (!form.name.trim() || !form.phone.trim() || !form.altPhone.trim() || !form.governorate.trim() || !form.address.trim()) {
       toast.error(t("required_fields"));
       return;
     }
     setSubmitting(true);
+    // Stable id for this checkout attempt: retries can never duplicate the order.
+    const clientOrderId = clientOrderIdRef.current;
     try {
       let receiptPath: string | null = null;
       if (receipt) receiptPath = await uploadReceipt(receipt);
 
       await createOrder({
+        clientOrderId,
         customer: { ...form },
         items: items.map(({ item, product }) => ({
           productId: product.id,
           nameEn: product.name.en,
           nameAr: product.name.ar,
-          unitPrice: priceOf(product),
+          unitPrice: priceOf(product), // price snapshot at order time
           quantity: item.quantity,
         })),
         subtotal,
+        shippingFee: 0,
+        total: subtotal,
         deposit,
         paymentMethod: "vodafone_cash",
         receiptPath,
@@ -104,11 +112,12 @@ function Checkout() {
       window.open(url, "_blank");
       navigate({ to: "/" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err));
+      toast.error(friendlyError(err, ar));
     } finally {
       setSubmitting(false);
     }
   }
+
 
 
   return (
@@ -144,7 +153,15 @@ function Checkout() {
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setReceipt(e.target.files?.[0] ?? null)}
+                onChange={(e) => {
+                  const f = e.target.files?.[0] ?? null;
+                  if (f && f.size > 5 * 1024 * 1024) {
+                    toast.error(ar ? "حجم الصورة كبير جدًا (الحد ٥ ميجابايت)." : "Image is too large (5MB max).");
+                    e.target.value = "";
+                    return;
+                  }
+                  setReceipt(f);
+                }}
                 className="mt-2 block w-full text-xs text-muted-foreground file:me-3 file:rounded-full file:border-0 file:bg-secondary file:px-4 file:py-2 file:text-xs"
               />
               {receipt && (

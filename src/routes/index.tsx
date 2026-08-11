@@ -53,7 +53,7 @@ function Index() {
                   "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&auto=format&fit=crop",
                   "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&auto=format&fit=crop",
                   "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&auto=format&fit=crop",
-                ].map((s, i) => <img key={i} src={s} alt="" className="h-7 w-7 rounded-full border-2 border-background object-cover" />)}
+                ].map((s, i) => <img key={i} src={s} alt="" loading="lazy" decoding="async" className="h-7 w-7 rounded-full border-2 border-background object-cover" />)}
               </div>
               <span>{ar ? "أكثر من ٢,٠٠٠ عميلة سعيدة" : "2,000+ happy customers"}</span>
             </div>

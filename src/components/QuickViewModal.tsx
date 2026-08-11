@@ -22,7 +22,7 @@ export function QuickViewModal({ product, onClose }: { product: Product; onClose
       >
         <div className="grid md:grid-cols-2">
           <div className="aspect-square bg-secondary/40">
-            <img src={product.image} alt={product.name[lang]} className="h-full w-full object-cover" />
+            <img src={product.image} alt={product.name[lang]} loading="lazy" decoding="async" className="h-full w-full object-cover" />
           </div>
           <div className="p-6 relative flex flex-col">
             <button

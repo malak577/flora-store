@@ -5,7 +5,7 @@ import { useI18n, formatEGP } from "@/lib/i18n";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { OrderStatus, Product, Availability } from "@/lib/types";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { fetchOrders, setOrderStatus, removeOrder, receiptUrl, type DbOrder } from "@/lib/orders";
+import { fetchOrders, friendlyError, setOrderStatus, removeOrder, receiptUrl, type DbOrder } from "@/lib/orders";
 import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle, Check, X, ClipboardList, Upload, Image as ImageIcon, Receipt } from "lucide-react";
 import { toast } from "sonner";
 
@@ -175,7 +175,7 @@ function Admin() {
               {products.map((p) => (
                 <tr key={p.id} className="border-t border-border">
                   <td className="p-3">
-                    <img src={p.image} alt="" className="h-12 w-12 rounded-lg object-cover bg-secondary/40" />
+                    <img src={p.image} alt="" loading="lazy" decoding="async" width={48} height={48} className="h-12 w-12 rounded-lg object-cover bg-secondary/40" />
                   </td>
                   <td className="p-3 text-muted-foreground">{p.brand}</td>
                   <td className="p-3">{p.name[lang]}</td>
@@ -424,21 +424,31 @@ function statusStyle(status: OrderStatus) {
   }
 }
 
+const PAGE_SIZE = 20;
+
 function OrdersPanel() {
   const { t, lang } = useI18n();
   const ar = lang === "ar";
   const [orders, setOrders] = useState<DbOrder[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(0);
+  const [status, setStatus] = useState<OrderStatus | "all">("all");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
     try {
-      setOrders(await fetchOrders());
+      const res = await fetchOrders({ page, pageSize: PAGE_SIZE, status });
+      setOrders(res.orders);
+      setTotal(res.total);
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err));
+      setError(friendlyError(err, ar));
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [page, status, ar]);
 
   useEffect(() => {
     void load();
@@ -447,26 +457,70 @@ function OrdersPanel() {
   const statusLabel = (s: OrderStatus) =>
     s === "pending" ? t("status_pending") : s === "confirmed" ? t("status_confirmed") : t("status_cancelled");
 
-  const changeStatus = async (id: string, status: OrderStatus) => {
+  const changeStatus = async (id: string, next: OrderStatus) => {
+    const prev = orders;
+    setOrders((list) => list.map((o) => (o.id === id ? { ...o, status: next } : o)));
     try {
-      await setOrderStatus(id, status);
-      setOrders((list) => list.map((o) => (o.id === id ? { ...o, status } : o)));
-      toast.success(statusLabel(status));
+      await setOrderStatus(id, next);
+      toast.success(statusLabel(next));
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err));
+      setOrders(prev);
+      toast.error(friendlyError(err, ar));
     }
   };
 
+  const pageCount = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
+  const filters: { key: OrderStatus | "all"; label: string }[] = [
+    { key: "all", label: ar ? "الكل" : "All" },
+    { key: "pending", label: t("status_pending") },
+    { key: "confirmed", label: t("status_confirmed") },
+    { key: "cancelled", label: t("status_cancelled") },
+  ];
+
   return (
     <div className="mb-8 rounded-2xl border border-border bg-card p-6">
-      <div className="flex items-center gap-2 mb-5">
+      <div className="flex items-center gap-2 mb-4">
         <ClipboardList className="h-5 w-5 text-primary" />
         <h2 className="font-serif text-xl">{t("orders")}</h2>
-        <span className="ml-auto text-xs text-muted-foreground">{orders.length}</span>
+        <span className="ml-auto text-xs text-muted-foreground">{total}</span>
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-5">
+        {filters.map((f) => (
+          <button
+            key={f.key}
+            type="button"
+            onClick={() => {
+              setPage(0);
+              setStatus(f.key);
+            }}
+            className={`rounded-full border px-3 py-1.5 text-xs transition ${
+              status === f.key ? "bg-primary text-primary-foreground border-primary" : "border-border hover:bg-secondary"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
       {loading ? (
-        <p className="text-sm text-muted-foreground text-center py-8">{ar ? "جارٍ التحميل..." : "Loading…"}</p>
+        <div className="space-y-3 py-2">
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="h-24 rounded-xl bg-secondary/50 animate-pulse" />
+          ))}
+        </div>
+      ) : error ? (
+        <div className="py-8 text-center">
+          <p className="text-sm text-muted-foreground">{error}</p>
+          <button
+            type="button"
+            onClick={() => void load()}
+            className="mt-3 rounded-full border border-border px-4 py-1.5 text-xs hover:bg-secondary"
+          >
+            {ar ? "إعادة المحاولة" : "Retry"}
+          </button>
+        </div>
       ) : orders.length === 0 ? (
         <p className="text-sm text-muted-foreground text-center py-8">{t("no_orders")}</p>
       ) : (
@@ -482,17 +536,45 @@ function OrdersPanel() {
               onDelete={() => {
                 if (!confirm(t("delete_order"))) return;
                 void removeOrder(o.id, o.receiptPath)
-                  .then(() => setOrders((list) => list.filter((x) => x.id !== o.id)))
-                  .catch((err) => toast.error(err instanceof Error ? err.message : String(err)));
+                  .then(() => {
+                    setOrders((list) => list.filter((x) => x.id !== o.id));
+                    setTotal((n) => Math.max(0, n - 1));
+                  })
+                  .catch((err) => toast.error(friendlyError(err, ar)));
               }}
               t={t}
             />
           ))}
         </div>
       )}
+
+      {!loading && !error && total > PAGE_SIZE && (
+        <div className="mt-5 flex items-center justify-between gap-3">
+          <button
+            type="button"
+            disabled={page === 0}
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+            className="rounded-full border border-border px-4 py-1.5 text-xs disabled:opacity-40 hover:bg-secondary"
+          >
+            {ar ? "السابق" : "Previous"}
+          </button>
+          <span className="text-xs text-muted-foreground">
+            {page + 1} / {pageCount}
+          </span>
+          <button
+            type="button"
+            disabled={page + 1 >= pageCount}
+            onClick={() => setPage((p) => p + 1)}
+            className="rounded-full border border-border px-4 py-1.5 text-xs disabled:opacity-40 hover:bg-secondary"
+          >
+            {ar ? "التالي" : "Next"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
+
 
 function ReceiptLink({ path, lang }: { path: string | null; lang: "en" | "ar" }) {
   const [url, setUrl] = useState<string | null>(null);
@@ -551,7 +633,7 @@ function OrderCard({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-mono text-xs text-muted-foreground">#{order.id.slice(0, 8)}</span>
+            <span className="font-mono text-xs text-muted-foreground">#{order.orderNumber ?? order.id.slice(0, 8)}</span>
             <span className={`text-xs px-2 py-0.5 rounded-full border ${statusStyle(order.status)}`}>
               {statusLabel}
             </span>
@@ -687,7 +769,7 @@ function FeedbackPanel() {
         <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {feedbackImages.map((src, i) => (
             <div key={i} className="relative group rounded-xl overflow-hidden border border-border bg-secondary/30">
-              <img src={src} alt="" className="w-full h-40 object-cover" />
+              <img src={src} alt="" loading="lazy" decoding="async" className="w-full h-40 object-cover" />
               <button
                 onClick={() => {
                   if (confirm(ar ? "حذف الصورة؟" : "Delete image?")) removeFeedbackImage(src);

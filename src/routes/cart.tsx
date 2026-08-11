@@ -35,7 +35,7 @@ function CartPage() {
             <div className="md:col-span-2 space-y-3">
               {items.map(({ item, product }) => (
                 <div key={product.id} className="flex gap-4 rounded-2xl border border-border bg-card p-3">
-                  <img src={product.image} alt={product.name[lang]} className="h-24 w-24 rounded-xl object-cover bg-secondary/40" />
+                  <img src={product.image} alt={product.name[lang]} loading="lazy" decoding="async" width={96} height={96} className="h-24 w-24 rounded-xl object-cover bg-secondary/40" />
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-muted-foreground">{product.brand}</p>
                     <p className="font-medium text-sm line-clamp-2">{product.name[lang]}</p>

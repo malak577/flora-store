@@ -39,7 +39,7 @@ function ProductDetail() {
         </Link>
         <div className="mt-6 grid md:grid-cols-2 gap-10">
           <div className="rounded-3xl overflow-hidden bg-secondary/40 aspect-square">
-            <img src={product.image} alt={product.name[lang]} className="h-full w-full object-cover" />
+            <img src={product.image} alt={product.name[lang]} fetchPriority="high" decoding="async" className="h-full w-full object-cover" />
           </div>
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-primary font-medium">{product.brand}</p>
