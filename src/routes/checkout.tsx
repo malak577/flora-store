@@ -73,25 +73,31 @@ function Checkout() {
 
   async function onConfirm(e: React.FormEvent) {
     e.preventDefault();
+    if (submitting) return;
     if (!form.name.trim() || !form.phone.trim() || !form.altPhone.trim() || !form.governorate.trim() || !form.address.trim()) {
       toast.error(t("required_fields"));
       return;
     }
     setSubmitting(true);
+    // Stable id for this checkout attempt: retries can never duplicate the order.
+    const clientOrderId = clientOrderIdRef.current;
     try {
       let receiptPath: string | null = null;
       if (receipt) receiptPath = await uploadReceipt(receipt);
 
       await createOrder({
+        clientOrderId,
         customer: { ...form },
         items: items.map(({ item, product }) => ({
           productId: product.id,
           nameEn: product.name.en,
           nameAr: product.name.ar,
-          unitPrice: priceOf(product),
+          unitPrice: priceOf(product), // price snapshot at order time
           quantity: item.quantity,
         })),
         subtotal,
+        shippingFee: 0,
+        total: subtotal,
         deposit,
         paymentMethod: "vodafone_cash",
         receiptPath,
@@ -104,11 +110,12 @@ function Checkout() {
       window.open(url, "_blank");
       navigate({ to: "/" });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err));
+      toast.error(friendlyError(err, ar));
     } finally {
       setSubmitting(false);
     }
   }
+
 
 
   return (
