@@ -2,10 +2,10 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Layout } from "@/components/Layout";
 import { useStore, priceOf } from "@/lib/store";
 import { useI18n, formatEGP } from "@/lib/i18n";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { MessageCircle, Upload } from "lucide-react";
 import { toast } from "sonner";
-import { createOrder, uploadReceipt } from "@/lib/orders";
+import { createOrder, friendlyError, newClientOrderId, uploadReceipt } from "@/lib/orders";
 
 export const Route = createFileRoute("/checkout")({
   component: Checkout,
@@ -19,6 +19,8 @@ function Checkout() {
   const [form, setForm] = useState({ name: "", phone: "", altPhone: "", governorate: "", address: "" });
   const [receipt, setReceipt] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const clientOrderIdRef = useRef(newClientOrderId());
+
 
 
   const items = cart
