@@ -5,7 +5,7 @@ import { useI18n, formatEGP } from "@/lib/i18n";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { OrderStatus, Product, Availability } from "@/lib/types";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
-import { fetchOrders, setOrderStatus, removeOrder, receiptUrl, type DbOrder } from "@/lib/orders";
+import { fetchOrders, friendlyError, setOrderStatus, removeOrder, receiptUrl, type DbOrder } from "@/lib/orders";
 import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle, Check, X, ClipboardList, Upload, Image as ImageIcon, Receipt } from "lucide-react";
 import { toast } from "sonner";
 
@@ -175,7 +175,7 @@ function Admin() {
               {products.map((p) => (
                 <tr key={p.id} className="border-t border-border">
                   <td className="p-3">
-                    <img src={p.image} alt="" className="h-12 w-12 rounded-lg object-cover bg-secondary/40" />
+                    <img src={p.image} alt="" loading="lazy" decoding="async" width={48} height={48} className="h-12 w-12 rounded-lg object-cover bg-secondary/40" />
                   </td>
                   <td className="p-3 text-muted-foreground">{p.brand}</td>
                   <td className="p-3">{p.name[lang]}</td>
@@ -633,7 +633,7 @@ function OrderCard({
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-mono text-xs text-muted-foreground">#{order.id.slice(0, 8)}</span>
+            <span className="font-mono text-xs text-muted-foreground">#{order.orderNumber ?? order.id.slice(0, 8)}</span>
             <span className={`text-xs px-2 py-0.5 rounded-full border ${statusStyle(order.status)}`}>
               {statusLabel}
             </span>
@@ -769,7 +769,7 @@ function FeedbackPanel() {
         <div className="mt-5 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {feedbackImages.map((src, i) => (
             <div key={i} className="relative group rounded-xl overflow-hidden border border-border bg-secondary/30">
-              <img src={src} alt="" className="w-full h-40 object-cover" />
+              <img src={src} alt="" loading="lazy" decoding="async" className="w-full h-40 object-cover" />
               <button
                 onClick={() => {
                   if (confirm(ar ? "حذف الصورة؟" : "Delete image?")) removeFeedbackImage(src);
