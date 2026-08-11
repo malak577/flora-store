@@ -17,6 +17,7 @@ export type Database = {
       orders: {
         Row: {
           address: string
+          client_order_id: string | null
           created_at: string
           customer_alt_phone: string
           customer_name: string
@@ -25,13 +26,18 @@ export type Database = {
           governorate: string
           id: string
           items: Json
+          order_number: number
           payment_method: string
           receipt_path: string | null
+          shipping_fee: number
           status: string
           subtotal: number
+          total: number
+          updated_at: string
         }
         Insert: {
           address: string
+          client_order_id?: string | null
           created_at?: string
           customer_alt_phone: string
           customer_name: string
@@ -40,13 +46,18 @@ export type Database = {
           governorate: string
           id?: string
           items?: Json
+          order_number?: number
           payment_method?: string
           receipt_path?: string | null
+          shipping_fee?: number
           status?: string
           subtotal?: number
+          total?: number
+          updated_at?: string
         }
         Update: {
           address?: string
+          client_order_id?: string | null
           created_at?: string
           customer_alt_phone?: string
           customer_name?: string
@@ -55,10 +66,14 @@ export type Database = {
           governorate?: string
           id?: string
           items?: Json
+          order_number?: number
           payment_method?: string
           receipt_path?: string | null
+          shipping_fee?: number
           status?: string
           subtotal?: number
+          total?: number
+          updated_at?: string
         }
         Relationships: []
       }
