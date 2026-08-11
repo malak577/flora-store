@@ -18,7 +18,10 @@ export function useAdminAuth() {
     }
     // Only one role check per signed-in user — avoids a request on every
     // token refresh / tab focus.
-    if (checkedFor.current === s.user.id) return;
+    if (checkedFor.current === s.user.id) {
+      setLoading(false);
+      return;
+    }
     checkedFor.current = s.user.id;
     // First signed-in account bootstraps itself as admin; afterwards this
     // simply reports whether the current account already has the admin role.
