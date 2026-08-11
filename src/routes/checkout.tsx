@@ -153,7 +153,15 @@ function Checkout() {
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => setReceipt(e.target.files?.[0] ?? null)}
+                onChange={(e) => {
+                  const f = e.target.files?.[0] ?? null;
+                  if (f && f.size > 5 * 1024 * 1024) {
+                    toast.error(ar ? "حجم الصورة كبير جدًا (الحد ٥ ميجابايت)." : "Image is too large (5MB max).");
+                    e.target.value = "";
+                    return;
+                  }
+                  setReceipt(f);
+                }}
                 className="mt-2 block w-full text-xs text-muted-foreground file:me-3 file:rounded-full file:border-0 file:bg-secondary file:px-4 file:py-2 file:text-xs"
               />
               {receipt && (
