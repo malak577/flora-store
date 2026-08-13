@@ -642,11 +642,17 @@ function OrderCard({
         </div>
         <div className="text-end">
           <div className="text-xs text-muted-foreground">{t("total")}</div>
-          <div className="font-semibold text-primary">{formatEGP(order.subtotal, lang)}</div>
+          <div className="font-semibold text-primary">
+            {formatEGP(order.total || order.subtotal, lang)}
+          </div>
+          <div className="text-xs text-muted-foreground mt-0.5">
+            {lang === "ar" ? "الشحن" : "Shipping"}: {formatEGP(order.shippingFee, lang)}
+          </div>
           <div className="text-xs text-muted-foreground mt-0.5">
             {t("deposit_50")}: {formatEGP(order.deposit, lang)}
           </div>
         </div>
+
       </div>
 
       <div className="grid sm:grid-cols-2 gap-4 mt-4 text-sm">
