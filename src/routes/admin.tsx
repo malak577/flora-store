@@ -151,7 +151,10 @@ function Admin() {
           </div>
         )}
 
+        <ShippingPanel />
+
         <OrdersPanel />
+
 
         <FeedbackPanel />
 
