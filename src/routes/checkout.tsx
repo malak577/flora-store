@@ -70,8 +70,8 @@ function Checkout() {
       L === "ar" ? `طلب جديد من فلورا ستور\n---\n` : `New Order — Flora Store\n---\n`;
     const cust =
       L === "ar"
-        ? `الاسم: ${form.name}\nالهاتف: ${form.phone}\nرقم إضافي: ${form.altPhone}\nالمحافظة: ${form.governorate}\nالعنوان: ${form.address}\n\nالمنتجات:\n`
-        : `Name: ${form.name}\nPhone: ${form.phone}\nAlt Phone: ${form.altPhone}\nGovernorate: ${form.governorate}\nAddress: ${form.address}\n\nItems:\n`;
+        ? `الاسم: ${form.name}\nالهاتف: ${form.phone}\nرقم إضافي: ${form.altPhone}\nالمحافظة: ${govLabel}\nالعنوان: ${form.address}\n\nالمنتجات:\n`
+        : `Name: ${form.name}\nPhone: ${form.phone}\nAlt Phone: ${form.altPhone}\nGovernorate: ${govLabel}\nAddress: ${form.address}\n\nItems:\n`;
 
     const lines = items
       .map(({ item, product }) => {
@@ -85,8 +85,9 @@ function Checkout() {
 
     const totals =
       L === "ar"
-        ? `\n\nالإجمالي: ${formatEGP(subtotal, L)}\nالمقدم المطلوب (٥٠٪): ${formatEGP(deposit, L)}\n\nيرجى تحويل ${formatEGP(deposit, L)} على فودافون كاش: ${settings.vodafoneCash}\nومن ثم إرفاق صورة إيصال التحويل هنا.`
-        : `\n\nTotal: ${formatEGP(subtotal, L)}\n50% Deposit Required: ${formatEGP(deposit, L)}\n\nPlease transfer ${formatEGP(deposit, L)} via Vodafone Cash to: ${settings.vodafoneCash}\nThen attach the payment screenshot here.`;
+        ? `\n\nالإجمالي الفرعي: ${formatEGP(subtotal, L)}\nالشحن (${govLabel}): ${formatEGP(shippingFee, L)}\nالمجموع: ${formatEGP(total, L)}\nالمقدم المطلوب (٥٠٪): ${formatEGP(deposit, L)}\n\nيرجى تحويل ${formatEGP(deposit, L)} على فودافون كاش: ${settings.vodafoneCash}\nومن ثم إرفاق صورة إيصال التحويل هنا.`
+        : `\n\nSubtotal: ${formatEGP(subtotal, L)}\nShipping (${govLabel}): ${formatEGP(shippingFee, L)}\nTotal: ${formatEGP(total, L)}\n50% Deposit Required: ${formatEGP(deposit, L)}\n\nPlease transfer ${formatEGP(deposit, L)} via Vodafone Cash to: ${settings.vodafoneCash}\nThen attach the payment screenshot here.`;
+
 
     return header + cust + lines + totals;
   }
