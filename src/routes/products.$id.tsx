@@ -100,6 +100,15 @@ function ProductDetail() {
               </div>
             )}
 
+            {product.ingredients && (product.ingredients[lang]?.trim() ?? "") !== "" && (
+              <div className="mt-5 rounded-2xl border border-border bg-card p-5">
+                <h2 className="font-serif text-lg mb-2">{t("ingredients")}</h2>
+                <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                  {product.ingredients[lang]}
+                </p>
+              </div>
+            )}
+
             <div className="mt-8 flex flex-wrap gap-3">
               <button
                 onClick={() => {

@@ -207,7 +207,10 @@ function Admin() {
                       </button>
                       <button
                         onClick={() => {
-                          if (confirm("Delete this product?")) deleteProduct(p.id);
+                          if (confirm("Delete this product?"))
+                            deleteProduct(p.id).catch((e) =>
+                              toast.error(e instanceof Error ? e.message : "Could not delete"),
+                            );
                         }}
                         className="h-8 w-8 rounded-full hover:bg-destructive/10 text-destructive inline-flex items-center justify-center"
                       >
@@ -225,12 +228,16 @@ function Admin() {
           <EditorModal
             product={editing}
             onCancel={() => setEditing(null)}
-            onSave={(p) => {
+            onSave={async (p) => {
               const exists = products.find((x) => x.id === p.id);
-              if (exists) updateProduct(p);
-              else addProduct(p);
-              toast.success("Saved");
-              setEditing(null);
+              try {
+                if (exists) await updateProduct(p);
+                else await addProduct(p);
+                toast.success(ar ? "تم الحفظ" : "Saved");
+                setEditing(null);
+              } catch (e) {
+                toast.error(e instanceof Error ? e.message : (ar ? "تعذر الحفظ" : "Could not save"));
+              }
             }}
           />
         )}
@@ -245,7 +252,7 @@ function EditorModal({
   onCancel,
 }: {
   product: Product;
-  onSave: (p: Product) => void;
+  onSave: (p: Product) => void | Promise<void>;
   onCancel: () => void;
 }) {
   const { t } = useI18n();
@@ -308,6 +315,12 @@ function EditorModal({
           </Row>
           <Row label={t("usage_ar")}>
             <textarea value={p.usage?.ar ?? ""} onChange={(e) => setP({ ...p, usage: { en: p.usage?.en ?? "", ar: e.target.value } })} className={inputCls} rows={3} dir="rtl" />
+          </Row>
+          <Row label={t("ingredients_en")}>
+            <textarea value={p.ingredients?.en ?? ""} onChange={(e) => setP({ ...p, ingredients: { en: e.target.value, ar: p.ingredients?.ar ?? "" } })} className={inputCls} rows={3} />
+          </Row>
+          <Row label={t("ingredients_ar")}>
+            <textarea value={p.ingredients?.ar ?? ""} onChange={(e) => setP({ ...p, ingredients: { en: p.ingredients?.en ?? "", ar: e.target.value } })} className={inputCls} rows={3} dir="rtl" />
           </Row>
           <Row label={t("benefits_en")}>
             <textarea value={benEn} onChange={(e) => setBenEn(e.target.value)} className={inputCls} rows={4} />
