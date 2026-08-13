@@ -2,10 +2,11 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Layout } from "@/components/Layout";
 import { useStore, priceOf } from "@/lib/store";
 import { useI18n, formatEGP } from "@/lib/i18n";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MessageCircle, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { createOrder, friendlyError, newClientOrderId, uploadReceipt } from "@/lib/orders";
+import { fetchShippingRates, type ShippingRate } from "@/lib/shipping";
 
 export const Route = createFileRoute("/checkout")({
   component: Checkout,
@@ -20,8 +21,19 @@ function Checkout() {
   const [receipt, setReceipt] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const clientOrderIdRef = useRef(newClientOrderId());
+  const [rates, setRates] = useState<ShippingRate[]>([]);
+  const [ratesLoading, setRatesLoading] = useState(true);
 
-
+  useEffect(() => {
+    let alive = true;
+    fetchShippingRates()
+      .then((r) => alive && setRates(r))
+      .catch(() => alive && setRates([]))
+      .finally(() => alive && setRatesLoading(false));
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const items = cart
     .map((i) => ({ item: i, product: products.find((p) => p.id === i.productId) }))
@@ -32,6 +44,11 @@ function Checkout() {
 
   const subtotal = items.reduce((s, { item, product }) => s + priceOf(product) * item.quantity, 0);
   const deposit = subtotal / 2;
+  const selectedRate = rates.find((r) => r.nameEn === form.governorate) ?? null;
+  // Shipping always comes from the admin-managed table — never a hardcoded value.
+  const shippingFee = selectedRate ? selectedRate.price : 0;
+  const total = subtotal + shippingFee;
+  const govLabel = selectedRate ? (ar ? selectedRate.nameAr : selectedRate.nameEn) : form.governorate;
 
   if (hydrated && items.length === 0) {
     return (
@@ -46,14 +63,15 @@ function Checkout() {
     );
   }
 
+
   function buildWhatsAppMessage() {
     const L = lang;
     const header =
       L === "ar" ? `طلب جديد من فلورا ستور\n---\n` : `New Order — Flora Store\n---\n`;
     const cust =
       L === "ar"
-        ? `الاسم: ${form.name}\nالهاتف: ${form.phone}\nرقم إضافي: ${form.altPhone}\nالمحافظة: ${form.governorate}\nالعنوان: ${form.address}\n\nالمنتجات:\n`
-        : `Name: ${form.name}\nPhone: ${form.phone}\nAlt Phone: ${form.altPhone}\nGovernorate: ${form.governorate}\nAddress: ${form.address}\n\nItems:\n`;
+        ? `الاسم: ${form.name}\nالهاتف: ${form.phone}\nرقم إضافي: ${form.altPhone}\nالمحافظة: ${govLabel}\nالعنوان: ${form.address}\n\nالمنتجات:\n`
+        : `Name: ${form.name}\nPhone: ${form.phone}\nAlt Phone: ${form.altPhone}\nGovernorate: ${govLabel}\nAddress: ${form.address}\n\nItems:\n`;
 
     const lines = items
       .map(({ item, product }) => {
@@ -67,8 +85,9 @@ function Checkout() {
 
     const totals =
       L === "ar"
-        ? `\n\nالإجمالي: ${formatEGP(subtotal, L)}\nالمقدم المطلوب (٥٠٪): ${formatEGP(deposit, L)}\n\nيرجى تحويل ${formatEGP(deposit, L)} على فودافون كاش: ${settings.vodafoneCash}\nومن ثم إرفاق صورة إيصال التحويل هنا.`
-        : `\n\nTotal: ${formatEGP(subtotal, L)}\n50% Deposit Required: ${formatEGP(deposit, L)}\n\nPlease transfer ${formatEGP(deposit, L)} via Vodafone Cash to: ${settings.vodafoneCash}\nThen attach the payment screenshot here.`;
+        ? `\n\nالإجمالي الفرعي: ${formatEGP(subtotal, L)}\nالشحن (${govLabel}): ${formatEGP(shippingFee, L)}\nالمجموع: ${formatEGP(total, L)}\nالمقدم المطلوب (٥٠٪): ${formatEGP(deposit, L)}\n\nيرجى تحويل ${formatEGP(deposit, L)} على فودافون كاش: ${settings.vodafoneCash}\nومن ثم إرفاق صورة إيصال التحويل هنا.`
+        : `\n\nSubtotal: ${formatEGP(subtotal, L)}\nShipping (${govLabel}): ${formatEGP(shippingFee, L)}\nTotal: ${formatEGP(total, L)}\n50% Deposit Required: ${formatEGP(deposit, L)}\n\nPlease transfer ${formatEGP(deposit, L)} via Vodafone Cash to: ${settings.vodafoneCash}\nThen attach the payment screenshot here.`;
+
 
     return header + cust + lines + totals;
   }
@@ -80,6 +99,10 @@ function Checkout() {
       toast.error(t("required_fields"));
       return;
     }
+    if (!selectedRate) {
+      toast.error(ar ? "برجاء اختيار المحافظة" : "Please select your governorate");
+      return;
+    }
     setSubmitting(true);
     // Stable id for this checkout attempt: retries can never duplicate the order.
     const clientOrderId = clientOrderIdRef.current;
@@ -89,7 +112,7 @@ function Checkout() {
 
       await createOrder({
         clientOrderId,
-        customer: { ...form },
+        customer: { ...form, governorate: selectedRate.nameEn },
         items: items.map(({ item, product }) => ({
           productId: product.id,
           nameEn: product.name.en,
@@ -98,12 +121,13 @@ function Checkout() {
           quantity: item.quantity,
         })),
         subtotal,
-        shippingFee: 0,
-        total: subtotal,
+        shippingFee, // snapshot of the governorate rate at order time
+        total,
         deposit,
         paymentMethod: "vodafone_cash",
         receiptPath,
       });
+
 
       const msg = encodeURIComponent(buildWhatsAppMessage());
       const url = `https://wa.me/${settings.whatsapp}?text=${msg}`;
@@ -130,7 +154,27 @@ function Checkout() {
             <Field label={t("full_name")} value={form.name} onChange={(v) => setForm({ ...form, name: v })} required />
             <Field label={t("phone")} value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} required type="tel" />
             <Field label={t("alt_phone")} value={form.altPhone} onChange={(v) => setForm({ ...form, altPhone: v })} required type="tel" />
-            <Field label={t("governorate")} value={form.governorate} onChange={(v) => setForm({ ...form, governorate: v })} required />
+            <label className="block">
+              <span className="text-sm font-medium">{t("governorate")}</span>
+              <select
+                required
+                value={form.governorate}
+                onChange={(e) => setForm({ ...form, governorate: e.target.value })}
+                className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              >
+                <option value="" disabled>
+                  {ratesLoading
+                    ? ar ? "جارٍ التحميل..." : "Loading…"
+                    : ar ? "اختر المحافظة" : "Select your governorate"}
+                </option>
+                {rates.map((r) => (
+                  <option key={r.id} value={r.nameEn}>
+                    {(ar ? r.nameAr : r.nameEn) + " — " + formatEGP(r.price, lang)}
+                  </option>
+                ))}
+              </select>
+            </label>
+
             <Field label={t("address")} value={form.address} onChange={(v) => setForm({ ...form, address: v })} required />
 
             <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5">
@@ -199,10 +243,19 @@ function Checkout() {
               <span>{t("subtotal")}</span>
               <span>{formatEGP(subtotal, lang)}</span>
             </div>
+            <div className="flex justify-between text-sm mt-1">
+              <span>{ar ? "الشحن" : "Shipping"}{selectedRate ? ` — ${govLabel}` : ""}</span>
+              <span>
+                {selectedRate
+                  ? formatEGP(shippingFee, lang)
+                  : ar ? "اختر المحافظة" : "Select governorate"}
+              </span>
+            </div>
             <div className="flex justify-between font-semibold mt-1">
               <span>{t("total")}</span>
-              <span className="text-primary">{formatEGP(subtotal, lang)}</span>
+              <span className="text-primary">{formatEGP(total, lang)}</span>
             </div>
+
             <div className="flex justify-between text-xs text-muted-foreground mt-2">
               <span>{t("deposit_50")}</span>
               <span className="font-semibold">{formatEGP(deposit, lang)}</span>
