@@ -11,10 +11,28 @@ export const Route = createFileRoute("/products/$id")({
 
 function ProductDetail() {
   const { id } = Route.useParams();
-  const { products, addToCart } = useStore();
+  const { products, productsLoading, addToCart } = useStore();
   const { t, lang } = useI18n();
   const navigate = useNavigate();
   const product = products.find((p) => p.id === id);
+
+  if (!product && productsLoading) {
+    return (
+      <Layout>
+        <div className="mx-auto max-w-6xl px-4 py-20">
+          <div className="grid md:grid-cols-2 gap-10 animate-pulse">
+            <div className="rounded-3xl bg-secondary/50 aspect-square" />
+            <div className="space-y-4">
+              <div className="h-4 w-24 rounded bg-secondary/60" />
+              <div className="h-8 w-2/3 rounded bg-secondary/60" />
+              <div className="h-4 w-full rounded bg-secondary/50" />
+              <div className="h-4 w-5/6 rounded bg-secondary/50" />
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   if (!product) {
     return (
