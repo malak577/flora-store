@@ -77,6 +77,36 @@ export type Database = {
         }
         Relationships: []
       }
+      shipping_rates: {
+        Row: {
+          created_at: string
+          id: string
+          name_ar: string
+          name_en: string
+          price: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name_ar: string
+          name_en: string
+          price?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name_ar?: string
+          name_en?: string
+          price?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
