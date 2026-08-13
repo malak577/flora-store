@@ -2,10 +2,11 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Layout } from "@/components/Layout";
 import { useStore, priceOf } from "@/lib/store";
 import { useI18n, formatEGP } from "@/lib/i18n";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { MessageCircle, Upload } from "lucide-react";
 import { toast } from "sonner";
 import { createOrder, friendlyError, newClientOrderId, uploadReceipt } from "@/lib/orders";
+import { fetchShippingRates, type ShippingRate } from "@/lib/shipping";
 
 export const Route = createFileRoute("/checkout")({
   component: Checkout,
@@ -20,8 +21,19 @@ function Checkout() {
   const [receipt, setReceipt] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const clientOrderIdRef = useRef(newClientOrderId());
+  const [rates, setRates] = useState<ShippingRate[]>([]);
+  const [ratesLoading, setRatesLoading] = useState(true);
 
-
+  useEffect(() => {
+    let alive = true;
+    fetchShippingRates()
+      .then((r) => alive && setRates(r))
+      .catch(() => alive && setRates([]))
+      .finally(() => alive && setRatesLoading(false));
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   const items = cart
     .map((i) => ({ item: i, product: products.find((p) => p.id === i.productId) }))
@@ -32,6 +44,11 @@ function Checkout() {
 
   const subtotal = items.reduce((s, { item, product }) => s + priceOf(product) * item.quantity, 0);
   const deposit = subtotal / 2;
+  const selectedRate = rates.find((r) => r.nameEn === form.governorate) ?? null;
+  // Shipping always comes from the admin-managed table — never a hardcoded value.
+  const shippingFee = selectedRate ? selectedRate.price : 0;
+  const total = subtotal + shippingFee;
+  const govLabel = selectedRate ? (ar ? selectedRate.nameAr : selectedRate.nameEn) : form.governorate;
 
   if (hydrated && items.length === 0) {
     return (
@@ -45,6 +62,7 @@ function Checkout() {
       </Layout>
     );
   }
+
 
   function buildWhatsAppMessage() {
     const L = lang;
