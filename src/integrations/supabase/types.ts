@@ -77,6 +77,84 @@ export type Database = {
         }
         Relationships: []
       }
+      products: {
+        Row: {
+          availability: string
+          badge: string | null
+          benefits_ar: string[]
+          benefits_en: string[]
+          best_seller: boolean
+          brand: string
+          created_at: string
+          description_ar: string
+          description_en: string
+          id: string
+          image: string
+          ingredients_ar: string | null
+          ingredients_en: string | null
+          name_ar: string
+          name_en: string
+          price: number
+          rating: number | null
+          review_count: number | null
+          sale_price: number | null
+          sort_order: number
+          updated_at: string
+          usage_ar: string | null
+          usage_en: string | null
+        }
+        Insert: {
+          availability?: string
+          badge?: string | null
+          benefits_ar?: string[]
+          benefits_en?: string[]
+          best_seller?: boolean
+          brand?: string
+          created_at?: string
+          description_ar?: string
+          description_en?: string
+          id: string
+          image?: string
+          ingredients_ar?: string | null
+          ingredients_en?: string | null
+          name_ar?: string
+          name_en?: string
+          price?: number
+          rating?: number | null
+          review_count?: number | null
+          sale_price?: number | null
+          sort_order?: number
+          updated_at?: string
+          usage_ar?: string | null
+          usage_en?: string | null
+        }
+        Update: {
+          availability?: string
+          badge?: string | null
+          benefits_ar?: string[]
+          benefits_en?: string[]
+          best_seller?: boolean
+          brand?: string
+          created_at?: string
+          description_ar?: string
+          description_en?: string
+          id?: string
+          image?: string
+          ingredients_ar?: string | null
+          ingredients_en?: string | null
+          name_ar?: string
+          name_en?: string
+          price?: number
+          rating?: number | null
+          review_count?: number | null
+          sale_price?: number | null
+          sort_order?: number
+          updated_at?: string
+          usage_ar?: string | null
+          usage_en?: string | null
+        }
+        Relationships: []
+      }
       shipping_rates: {
         Row: {
           created_at: string

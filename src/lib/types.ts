@@ -7,6 +7,8 @@ export interface Product {
   name: { en: string; ar: string };
   description: { en: string; ar: string };
   usage?: { en: string; ar: string };
+  ingredients?: { en: string; ar: string };
+  sortOrder?: number;
   benefits: { en: string[]; ar: string[] };
   price: number; // EGP
   salePrice?: number; // EGP, optional
