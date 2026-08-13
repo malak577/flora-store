@@ -243,10 +243,19 @@ function Checkout() {
               <span>{t("subtotal")}</span>
               <span>{formatEGP(subtotal, lang)}</span>
             </div>
+            <div className="flex justify-between text-sm mt-1">
+              <span>{ar ? "الشحن" : "Shipping"}{selectedRate ? ` — ${govLabel}` : ""}</span>
+              <span>
+                {selectedRate
+                  ? formatEGP(shippingFee, lang)
+                  : ar ? "اختر المحافظة" : "Select governorate"}
+              </span>
+            </div>
             <div className="flex justify-between font-semibold mt-1">
               <span>{t("total")}</span>
-              <span className="text-primary">{formatEGP(subtotal, lang)}</span>
+              <span className="text-primary">{formatEGP(total, lang)}</span>
             </div>
+
             <div className="flex justify-between text-xs text-muted-foreground mt-2">
               <span>{t("deposit_50")}</span>
               <span className="font-semibold">{formatEGP(deposit, lang)}</span>
