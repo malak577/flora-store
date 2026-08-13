@@ -99,6 +99,10 @@ function Checkout() {
       toast.error(t("required_fields"));
       return;
     }
+    if (!selectedRate) {
+      toast.error(ar ? "برجاء اختيار المحافظة" : "Please select your governorate");
+      return;
+    }
     setSubmitting(true);
     // Stable id for this checkout attempt: retries can never duplicate the order.
     const clientOrderId = clientOrderIdRef.current;
@@ -108,7 +112,7 @@ function Checkout() {
 
       await createOrder({
         clientOrderId,
-        customer: { ...form },
+        customer: { ...form, governorate: selectedRate.nameEn },
         items: items.map(({ item, product }) => ({
           productId: product.id,
           nameEn: product.name.en,
@@ -117,12 +121,13 @@ function Checkout() {
           quantity: item.quantity,
         })),
         subtotal,
-        shippingFee: 0,
-        total: subtotal,
+        shippingFee, // snapshot of the governorate rate at order time
+        total,
         deposit,
         paymentMethod: "vodafone_cash",
         receiptPath,
       });
+
 
       const msg = encodeURIComponent(buildWhatsAppMessage());
       const url = `https://wa.me/${settings.whatsapp}?text=${msg}`;
