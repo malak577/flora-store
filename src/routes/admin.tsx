@@ -8,6 +8,8 @@ import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { fetchOrders, friendlyError, setOrderStatus, removeOrder, receiptUrl, type DbOrder } from "@/lib/orders";
 import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle, Check, X, ClipboardList, Upload, Image as ImageIcon, Receipt } from "lucide-react";
 import { toast } from "sonner";
+import { ShippingPanel } from "@/components/ShippingPanel";
+
 
 
 export const Route = createFileRoute("/admin")({
