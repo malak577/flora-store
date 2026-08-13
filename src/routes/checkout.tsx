@@ -154,7 +154,27 @@ function Checkout() {
             <Field label={t("full_name")} value={form.name} onChange={(v) => setForm({ ...form, name: v })} required />
             <Field label={t("phone")} value={form.phone} onChange={(v) => setForm({ ...form, phone: v })} required type="tel" />
             <Field label={t("alt_phone")} value={form.altPhone} onChange={(v) => setForm({ ...form, altPhone: v })} required type="tel" />
-            <Field label={t("governorate")} value={form.governorate} onChange={(v) => setForm({ ...form, governorate: v })} required />
+            <label className="block">
+              <span className="text-sm font-medium">{t("governorate")}</span>
+              <select
+                required
+                value={form.governorate}
+                onChange={(e) => setForm({ ...form, governorate: e.target.value })}
+                className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+              >
+                <option value="" disabled>
+                  {ratesLoading
+                    ? ar ? "جارٍ التحميل..." : "Loading…"
+                    : ar ? "اختر المحافظة" : "Select your governorate"}
+                </option>
+                {rates.map((r) => (
+                  <option key={r.id} value={r.nameEn}>
+                    {(ar ? r.nameAr : r.nameEn) + " — " + formatEGP(r.price, lang)}
+                  </option>
+                ))}
+              </select>
+            </label>
+
             <Field label={t("address")} value={form.address} onChange={(v) => setForm({ ...form, address: v })} required />
 
             <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5">
