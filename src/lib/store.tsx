@@ -1,8 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { CartItem, Product, StoreSettings } from "./types";
-import { SEED_PRODUCTS } from "./seed";
+import { fetchProducts, saveProduct, deleteProductRow } from "./products";
 
-const LS_PRODUCTS = "flora-products-v1";
 const LS_CART = "flora-cart-v1";
 const LS_SETTINGS = "flora-settings-v1";
 const LS_WISH = "flora-wishlist-v1";
@@ -16,10 +15,13 @@ const DEFAULT_SETTINGS: StoreSettings = {
 interface StoreCtx {
   hydrated: boolean;
   products: Product[];
+  productsLoading: boolean;
+  productsError: string | null;
+  refreshProducts: () => Promise<void>;
   setProducts: (p: Product[]) => void;
-  addProduct: (p: Product) => void;
-  updateProduct: (p: Product) => void;
-  deleteProduct: (id: string) => void;
+  addProduct: (p: Product) => Promise<void>;
+  updateProduct: (p: Product) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
   cart: CartItem[];
   addToCart: (id: string, qty?: number) => void;
   updateQty: (id: string, qty: number) => void;
@@ -38,7 +40,9 @@ const Ctx = createContext<StoreCtx | null>(null);
 
 export function StoreProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
-  const [products, setProductsState] = useState<Product[]>(SEED_PRODUCTS);
+  const [products, setProductsState] = useState<Product[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState<string | null>(null);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [settings, setSettings] = useState<StoreSettings>(DEFAULT_SETTINGS);
   const [wishlist, setWishlist] = useState<string[]>([]);
@@ -46,8 +50,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     try {
-      const p = localStorage.getItem(LS_PRODUCTS);
-      if (p) setProductsState(JSON.parse(p));
       const c = localStorage.getItem(LS_CART);
       if (c) setCart(JSON.parse(c));
       const s = localStorage.getItem(LS_SETTINGS);
@@ -64,9 +66,6 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (hydrated) localStorage.setItem(LS_PRODUCTS, JSON.stringify(products));
-  }, [products, hydrated]);
-  useEffect(() => {
     if (hydrated) localStorage.setItem(LS_CART, JSON.stringify(cart));
   }, [cart, hydrated]);
   useEffect(() => {
@@ -79,16 +78,35 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (hydrated) localStorage.setItem(LS_FEEDBACK, JSON.stringify(feedbackImages));
   }, [feedbackImages, hydrated]);
 
+  const refreshProducts = useCallback(async () => {
+    try {
+      const list = await fetchProducts();
+      setProductsState(list);
+      setProductsError(null);
+    } catch (e) {
+      setProductsError(e instanceof Error ? e.message : "Failed to load products");
+    } finally {
+      setProductsLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void refreshProducts();
+  }, [refreshProducts]);
+
   const setProducts = useCallback((p: Product[]) => setProductsState(p), []);
-  const addProduct = useCallback((p: Product) => setProductsState((s) => [p, ...s]), []);
-  const updateProduct = useCallback(
-    (p: Product) => setProductsState((s) => s.map((x) => (x.id === p.id ? p : x))),
-    [],
-  );
-  const deleteProduct = useCallback(
-    (id: string) => setProductsState((s) => s.filter((x) => x.id !== id)),
-    [],
-  );
+  const addProduct = useCallback(async (p: Product) => {
+    const saved = await saveProduct(p);
+    setProductsState((s) => [saved, ...s.filter((x) => x.id !== saved.id)]);
+  }, []);
+  const updateProduct = useCallback(async (p: Product) => {
+    const saved = await saveProduct(p);
+    setProductsState((s) => s.map((x) => (x.id === saved.id ? saved : x)));
+  }, []);
+  const deleteProduct = useCallback(async (id: string) => {
+    await deleteProductRow(id);
+    setProductsState((s) => s.filter((x) => x.id !== id));
+  }, []);
 
   const addToCart = useCallback((id: string, qty = 1) => {
     setCart((c) => {
@@ -132,6 +150,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     () => ({
       hydrated,
       products,
+      productsLoading,
+      productsError,
+      refreshProducts,
       setProducts,
       addProduct,
       updateProduct,
@@ -152,6 +173,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     [
       hydrated,
       products,
+      productsLoading,
+      productsError,
+      refreshProducts,
       setProducts,
       addProduct,
       updateProduct,
