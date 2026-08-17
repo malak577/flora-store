@@ -120,24 +120,31 @@ function Index() {
         <FadeIn>
           <div className="flex items-end justify-between mb-6">
             <h2 className="font-serif text-2xl sm:text-3xl">{t("brands")}</h2>
-            <Link to="/products" className="text-sm text-primary hover:underline">
-              {t("all_brands")} →
+            <Link to="/brands" className="text-sm text-primary hover:underline">
+              {ar ? "عرض كل الماركات" : "View all brands"} →
             </Link>
           </div>
         </FadeIn>
         <div className="flex flex-wrap gap-3">
-          {brands.map((b) => (
+          {topBrands.map((b) => (
             <Link
-              key={b}
+              key={b.id}
               to="/products"
-              search={{ brand: b }}
+              search={{ brand: b.nameEn }}
               className="rounded-full border border-border bg-card px-5 py-2.5 text-sm font-medium hover:bg-primary hover:text-primary-foreground hover:border-primary hover:-translate-y-0.5 transition-all"
             >
-              {b}
+              {ar && b.nameAr ? b.nameAr : b.nameEn}
             </Link>
           ))}
+          <Link
+            to="/brands"
+            className="rounded-full border border-primary/40 px-5 py-2.5 text-sm font-medium text-primary hover:bg-primary hover:text-primary-foreground transition-all"
+          >
+            {ar ? "كل الماركات" : "View all brands"}
+          </Link>
         </div>
       </section>
+
 
       {/* All products */}
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-12">
