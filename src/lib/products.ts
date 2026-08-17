@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Product, Availability, ProductBadge } from "./types";
 
 const COLUMNS =
-  "id,brand,name_en,name_ar,description_en,description_ar,usage_en,usage_ar,ingredients_en,ingredients_ar,benefits_en,benefits_ar,price,sale_price,image,availability,rating,review_count,badge,best_seller,sort_order";
+  "id,brand,brand_id,name_en,name_ar,description_en,description_ar,usage_en,usage_ar,ingredients_en,ingredients_ar,benefits_en,benefits_ar,price,sale_price,image,availability,rating,review_count,badge,best_seller,sort_order";
 
 function pair(en?: string | null, ar?: string | null) {
   const e = (en ?? "").trim();
@@ -15,6 +15,7 @@ export function mapRow(row: Record<string, any>): Product {
   return {
     id: row.id as string,
     brand: row.brand ?? "",
+    brandId: row.brand_id ?? undefined,
     name: { en: row.name_en ?? "", ar: row.name_ar ?? "" },
     description: { en: row.description_en ?? "", ar: row.description_ar ?? "" },
     usage: pair(row.usage_en, row.usage_ar),
@@ -41,6 +42,7 @@ export function toRow(p: Product) {
   return {
     id: p.id,
     brand: p.brand ?? "",
+    brand_id: p.brandId ?? null,
     name_en: p.name.en ?? "",
     name_ar: p.name.ar ?? "",
     description_en: p.description.en ?? "",

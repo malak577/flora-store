@@ -4,6 +4,7 @@ export type ProductBadge = "bestseller" | "new";
 export interface Product {
   id: string;
   brand: string;
+  brandId?: string;
   name: { en: string; ar: string };
   description: { en: string; ar: string };
   usage?: { en: string; ar: string };
