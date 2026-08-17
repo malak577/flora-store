@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      brands: {
+        Row: {
+          created_at: string
+          id: string
+          name_ar: string
+          name_en: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name_ar?: string
+          name_en: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name_ar?: string
+          name_en?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           address: string
@@ -85,6 +112,7 @@ export type Database = {
           benefits_en: string[]
           best_seller: boolean
           brand: string
+          brand_id: string | null
           created_at: string
           description_ar: string
           description_en: string
@@ -110,6 +138,7 @@ export type Database = {
           benefits_en?: string[]
           best_seller?: boolean
           brand?: string
+          brand_id?: string | null
           created_at?: string
           description_ar?: string
           description_en?: string
@@ -135,6 +164,7 @@ export type Database = {
           benefits_en?: string[]
           best_seller?: boolean
           brand?: string
+          brand_id?: string | null
           created_at?: string
           description_ar?: string
           description_en?: string
@@ -153,7 +183,15 @@ export type Database = {
           usage_ar?: string | null
           usage_en?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       shipping_rates: {
         Row: {
