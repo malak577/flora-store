@@ -45,10 +45,11 @@ export async function updateBrand(
   id: string,
   patch: { nameEn?: string; nameAr?: string; sortOrder?: number },
 ): Promise<Brand> {
-  const row: Record<string, unknown> = {};
-  if (patch.nameEn !== undefined) row['name_en'] = patch.nameEn.trim();
-  if (patch.nameAr !== undefined) row['name_ar'] = patch.nameAr.trim();
-  if (patch.sortOrder !== undefined) row['sort_order'] = patch.sortOrder;
+  const row: { name_en?: string; name_ar?: string; sort_order?: number } = {};
+  if (patch.nameEn !== undefined) row.name_en = patch.nameEn.trim();
+  if (patch.nameAr !== undefined) row.name_ar = patch.nameAr.trim();
+  if (patch.sortOrder !== undefined) row.sort_order = patch.sortOrder;
+
   const { data, error } = await supabase
     .from("brands")
     .update(row)
