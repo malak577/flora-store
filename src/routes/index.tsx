@@ -4,6 +4,7 @@ import { ProductCard } from "@/components/ProductCard";
 import { FadeIn } from "@/components/FadeIn";
 import { FeedbackGallery } from "@/components/FeedbackGallery";
 import { useStore } from "@/lib/store";
+import { useBrands } from "@/hooks/useBrands";
 import { useI18n } from "@/lib/i18n";
 import { Sparkles, Truck, ShieldCheck, Award } from "lucide-react";
 
@@ -15,7 +16,8 @@ function Index() {
   const { t, lang } = useI18n();
   const { products } = useStore();
   const ar = lang === "ar";
-  const brands = Array.from(new Set(products.map((p) => p.brand)));
+  const { brands } = useBrands();
+  const topBrands = brands.slice(0, 10);
   const bestSellers = products.filter((p) => p.bestSeller).slice(0, 4);
   const featured = products.slice(0, 8);
 
