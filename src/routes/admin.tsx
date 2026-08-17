@@ -9,6 +9,8 @@ import { fetchOrders, friendlyError, setOrderStatus, removeOrder, receiptUrl, ty
 import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle, Check, X, ClipboardList, Upload, Image as ImageIcon, Receipt } from "lucide-react";
 import { toast } from "sonner";
 import { ShippingPanel } from "@/components/ShippingPanel";
+import { BrandsPanel } from "@/components/BrandsPanel";
+import { useBrands } from "@/hooks/useBrands";
 
 
 
@@ -152,6 +154,8 @@ function Admin() {
             <WhatsAppPreview />
           </div>
         )}
+
+        <BrandsPanel />
 
         <ShippingPanel />
 
