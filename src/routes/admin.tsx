@@ -259,6 +259,7 @@ function EditorModal({
   const [p, setP] = useState<Product>(product);
   const [benEn, setBenEn] = useState(product.benefits.en.join("\n"));
   const [benAr, setBenAr] = useState(product.benefits.ar.join("\n"));
+  const { brands } = useBrands();
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4 overflow-y-auto">
@@ -268,8 +269,24 @@ function EditorModal({
         </h2>
         <div className="space-y-3 max-h-[70vh] overflow-y-auto pr-1">
           <Row label={t("brand_field")}>
-            <input value={p.brand} onChange={(e) => setP({ ...p, brand: e.target.value })} className={inputCls} />
+            <select
+              value={p.brandId ?? ""}
+              onChange={(e) => {
+                const b = brands.find((x) => x.id === e.target.value);
+                setP({ ...p, brandId: b?.id, brand: b?.nameEn ?? "" });
+              }}
+              className={inputCls}
+            >
+              <option value="">—</option>
+              {brands.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {b.nameEn}
+                  {b.nameAr && b.nameAr !== b.nameEn ? ` — ${b.nameAr}` : ""}
+                </option>
+              ))}
+            </select>
           </Row>
+
           <div className="grid sm:grid-cols-2 gap-3">
             <Row label={t("name_en")}>
               <input value={p.name.en} onChange={(e) => setP({ ...p, name: { ...p.name, en: e.target.value } })} className={inputCls} />
