@@ -16,7 +16,7 @@ function Checkout() {
   const { t, lang } = useI18n();
   const ar = lang === "ar";
   const { cart, products, settings, clearCart, hydrated } = useStore();
-  const navigate = useNavigate();
+  
   const [form, setForm] = useState({ name: "", phone: "", altPhone: "", governorate: "", address: "" });
   const [receipt, setReceipt] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
