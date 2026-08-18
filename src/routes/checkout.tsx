@@ -23,6 +23,10 @@ function Checkout() {
   const clientOrderIdRef = useRef(newClientOrderId());
   const [rates, setRates] = useState<ShippingRate[]>([]);
   const [ratesLoading, setRatesLoading] = useState(true);
+  // Set once the order is stored — guarantees the WhatsApp link is always reachable,
+  // even if the browser blocks the automatic popup.
+  const [waUrl, setWaUrl] = useState<string | null>(null);
+
 
   useEffect(() => {
     let alive = true;
