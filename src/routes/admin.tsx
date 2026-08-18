@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { ShippingPanel } from "@/components/ShippingPanel";
 import { BrandsPanel } from "@/components/BrandsPanel";
 import { useBrands } from "@/hooks/useBrands";
+import { ChangePasswordPanel } from "@/components/ChangePasswordPanel";
 
 
 
@@ -150,6 +151,8 @@ function Admin() {
                 ? "الدخول إلى لوحة التحكم يتم عبر حساب الإدارة (بريد إلكتروني وكلمة مرور)."
                 : "Dashboard access is controlled by your admin account (email + password)."}
             </p>
+
+            <ChangePasswordPanel />
 
             <WhatsAppPreview />
           </div>
