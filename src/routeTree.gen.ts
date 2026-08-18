@@ -23,6 +23,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductsIdRouteImport } from './routes/products.$id'
+import { Route as ApiPublicTmpResetRouteImport } from './routes/api/public/tmp-reset'
 
 const WishlistRoute = WishlistRouteImport.update({
   id: '/wishlist',
@@ -94,6 +95,11 @@ const ProductsIdRoute = ProductsIdRouteImport.update({
   path: '/products/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicTmpResetRoute = ApiPublicTmpResetRouteImport.update({
+  id: '/api/public/tmp-reset',
+  path: '/api/public/tmp-reset',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/wishlist': typeof WishlistRoute
   '/products/$id': typeof ProductsIdRoute
   '/products/': typeof ProductsIndexRoute
+  '/api/public/tmp-reset': typeof ApiPublicTmpResetRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   '/wishlist': typeof WishlistRoute
   '/products/$id': typeof ProductsIdRoute
   '/products': typeof ProductsIndexRoute
+  '/api/public/tmp-reset': typeof ApiPublicTmpResetRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -143,6 +151,7 @@ export interface FileRoutesById {
   '/wishlist': typeof WishlistRoute
   '/products/$id': typeof ProductsIdRoute
   '/products/': typeof ProductsIndexRoute
+  '/api/public/tmp-reset': typeof ApiPublicTmpResetRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/products/$id'
     | '/products/'
+    | '/api/public/tmp-reset'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/products/$id'
     | '/products'
+    | '/api/public/tmp-reset'
   id:
     | '__root__'
     | '/'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/products/$id'
     | '/products/'
+    | '/api/public/tmp-reset'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -210,6 +222,7 @@ export interface RootRouteChildren {
   WishlistRoute: typeof WishlistRoute
   ProductsIdRoute: typeof ProductsIdRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
+  ApiPublicTmpResetRoute: typeof ApiPublicTmpResetRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -312,6 +325,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/tmp-reset': {
+      id: '/api/public/tmp-reset'
+      path: '/api/public/tmp-reset'
+      fullPath: '/api/public/tmp-reset'
+      preLoaderRoute: typeof ApiPublicTmpResetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -330,6 +350,7 @@ const rootRouteChildren: RootRouteChildren = {
   WishlistRoute: WishlistRoute,
   ProductsIdRoute: ProductsIdRoute,
   ProductsIndexRoute: ProductsIndexRoute,
+  ApiPublicTmpResetRoute: ApiPublicTmpResetRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
