@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Layout } from "@/components/Layout";
 import { useStore, priceOf } from "@/lib/store";
 import { useI18n, formatEGP } from "@/lib/i18n";
@@ -16,13 +16,17 @@ function Checkout() {
   const { t, lang } = useI18n();
   const ar = lang === "ar";
   const { cart, products, settings, clearCart, hydrated } = useStore();
-  const navigate = useNavigate();
+  
   const [form, setForm] = useState({ name: "", phone: "", altPhone: "", governorate: "", address: "" });
   const [receipt, setReceipt] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const clientOrderIdRef = useRef(newClientOrderId());
   const [rates, setRates] = useState<ShippingRate[]>([]);
   const [ratesLoading, setRatesLoading] = useState(true);
+  // Set once the order is stored — guarantees the WhatsApp link is always reachable,
+  // even if the browser blocks the automatic popup.
+  const [waUrl, setWaUrl] = useState<string | null>(null);
+
 
   useEffect(() => {
     let alive = true;
@@ -50,6 +54,35 @@ function Checkout() {
   const total = subtotal + shippingFee;
   const govLabel = selectedRate ? (ar ? selectedRate.nameAr : selectedRate.nameEn) : form.governorate;
 
+  if (waUrl) {
+    return (
+      <Layout>
+        <div className="mx-auto max-w-md px-4 py-20 text-center">
+          <h1 className="font-serif text-3xl mb-3">
+            {ar ? "تم استلام طلبك" : "Order received"}
+          </h1>
+          <p className="text-sm text-muted-foreground mb-6">
+            {ar
+              ? "برجاء إرسال تفاصيل الطلب على واتساب لتأكيده."
+              : "Please send the order details on WhatsApp to confirm it."}
+          </p>
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 text-white px-6 py-4 font-medium hover:bg-emerald-700 transition active:scale-[0.99]"
+          >
+            <MessageCircle className="h-5 w-5" />
+            {ar ? "فتح واتساب وإرسال الطلب" : "Open WhatsApp & send order"}
+          </a>
+          <Link to="/" className="mt-6 block text-sm text-primary hover:underline">
+            {ar ? "العودة للرئيسية" : "Back to home"}
+          </Link>
+        </div>
+      </Layout>
+    );
+  }
+
   if (hydrated && items.length === 0) {
     return (
       <Layout>
@@ -62,6 +95,7 @@ function Checkout() {
       </Layout>
     );
   }
+
 
 
   function buildWhatsAppMessage() {
@@ -133,8 +167,11 @@ function Checkout() {
       const url = `https://wa.me/${settings.whatsapp}?text=${msg}`;
       clearCart();
       toast.success(ar ? "تم استلام طلبك بنجاح" : "Your order has been saved");
-      window.open(url, "_blank");
-      navigate({ to: "/" });
+      // Always show the confirmation screen with an explicit WhatsApp button,
+      // then try to open WhatsApp automatically on top of it.
+      setWaUrl(url);
+      window.open(url, "_blank", "noopener,noreferrer");
+
     } catch (err) {
       toast.error(friendlyError(err, ar));
     } finally {
