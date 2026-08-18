@@ -57,6 +57,16 @@ export function ChangePasswordPanel() {
         {ar ? "تغيير كلمة المرور" : "Change password"}
       </h3>
       <label className="block">
+        <span className="text-sm font-medium">{ar ? "كلمة المرور الحالية" : "Current password"}</span>
+        <input
+          type="password"
+          autoComplete="current-password"
+          value={current}
+          onChange={(e) => setCurrent(e.target.value)}
+          className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm"
+        />
+      </label>
+      <label className="block">
         <span className="text-sm font-medium">{ar ? "كلمة المرور الجديدة" : "New password"}</span>
         <input
           type="password"
@@ -66,16 +76,7 @@ export function ChangePasswordPanel() {
           className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm"
         />
       </label>
-      <label className="block">
-        <span className="text-sm font-medium">{ar ? "تأكيد كلمة المرور" : "Confirm password"}</span>
-        <input
-          type="password"
-          autoComplete="new-password"
-          value={confirm}
-          onChange={(e) => setConfirm(e.target.value)}
-          className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm"
-        />
-      </label>
+
       <button
         type="submit"
         disabled={saving}
