@@ -8,22 +8,36 @@ import { toast } from "sonner";
 export function ChangePasswordPanel() {
   const { lang } = useI18n();
   const ar = lang === "ar";
+  const [current, setCurrent] = useState("");
   const [pw, setPw] = useState("");
-  const [confirm, setConfirm] = useState("");
   const [saving, setSaving] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (saving) return;
+    if (!current) {
+      toast.error(ar ? "أدخل كلمة المرور الحالية." : "Enter your current password.");
+      return;
+    }
     if (pw.length < 8) {
       toast.error(ar ? "كلمة المرور يجب ألا تقل عن ٨ أحرف." : "Password must be at least 8 characters.");
       return;
     }
-    if (pw !== confirm) {
-      toast.error(ar ? "كلمتا المرور غير متطابقتين." : "Passwords do not match.");
+    setSaving(true);
+    const { data: userData } = await supabase.auth.getUser();
+    const email = userData.user?.email;
+    if (!email) {
+      setSaving(false);
+      toast.error(ar ? "الجلسة غير صالحة." : "Session is invalid.");
       return;
     }
-    setSaving(true);
+    // Verify the current password before allowing the change.
+    const { error: reauthError } = await supabase.auth.signInWithPassword({ email, password: current });
+    if (reauthError) {
+      setSaving(false);
+      toast.error(ar ? "كلمة المرور الحالية غير صحيحة." : "Current password is incorrect.");
+      return;
+    }
     const { error } = await supabase.auth.updateUser({ password: pw });
     setSaving(false);
     if (error) {
@@ -31,9 +45,10 @@ export function ChangePasswordPanel() {
       return;
     }
     setPw("");
-    setConfirm("");
+    setCurrent("");
     toast.success(ar ? "تم تحديث كلمة المرور بنجاح." : "Password updated successfully.");
   }
+
 
   return (
     <form onSubmit={onSubmit} className="rounded-2xl border border-border bg-background/60 p-5 space-y-3">
