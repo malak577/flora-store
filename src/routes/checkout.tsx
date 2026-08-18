@@ -167,8 +167,11 @@ function Checkout() {
       const url = `https://wa.me/${settings.whatsapp}?text=${msg}`;
       clearCart();
       toast.success(ar ? "تم استلام طلبك بنجاح" : "Your order has been saved");
-      window.open(url, "_blank");
-      navigate({ to: "/" });
+      // Always show the confirmation screen with an explicit WhatsApp button,
+      // then try to open WhatsApp automatically on top of it.
+      setWaUrl(url);
+      window.open(url, "_blank", "noopener,noreferrer");
+
     } catch (err) {
       toast.error(friendlyError(err, ar));
     } finally {
