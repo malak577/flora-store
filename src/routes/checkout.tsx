@@ -50,6 +50,35 @@ function Checkout() {
   const total = subtotal + shippingFee;
   const govLabel = selectedRate ? (ar ? selectedRate.nameAr : selectedRate.nameEn) : form.governorate;
 
+  if (waUrl) {
+    return (
+      <Layout>
+        <div className="mx-auto max-w-md px-4 py-20 text-center">
+          <h1 className="font-serif text-3xl mb-3">
+            {ar ? "تم استلام طلبك" : "Order received"}
+          </h1>
+          <p className="text-sm text-muted-foreground mb-6">
+            {ar
+              ? "برجاء إرسال تفاصيل الطلب على واتساب لتأكيده."
+              : "Please send the order details on WhatsApp to confirm it."}
+          </p>
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-emerald-600 text-white px-6 py-4 font-medium hover:bg-emerald-700 transition active:scale-[0.99]"
+          >
+            <MessageCircle className="h-5 w-5" />
+            {ar ? "فتح واتساب وإرسال الطلب" : "Open WhatsApp & send order"}
+          </a>
+          <Link to="/" className="mt-6 block text-sm text-primary hover:underline">
+            {ar ? "العودة للرئيسية" : "Back to home"}
+          </Link>
+        </div>
+      </Layout>
+    );
+  }
+
   if (hydrated && items.length === 0) {
     return (
       <Layout>
@@ -62,6 +91,7 @@ function Checkout() {
       </Layout>
     );
   }
+
 
 
   function buildWhatsAppMessage() {
