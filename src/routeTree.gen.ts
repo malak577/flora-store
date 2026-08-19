@@ -23,6 +23,7 @@ import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProductsIndexRouteImport } from './routes/products.index'
 import { Route as ProductsIdRouteImport } from './routes/products.$id'
+import { Route as ApiPublicProductImagesSplatRouteImport } from './routes/api/public/product-images.$'
 
 const WishlistRoute = WishlistRouteImport.update({
   id: '/wishlist',
@@ -94,6 +95,12 @@ const ProductsIdRoute = ProductsIdRouteImport.update({
   path: '/products/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicProductImagesSplatRoute =
+  ApiPublicProductImagesSplatRouteImport.update({
+    id: '/api/public/product-images/$',
+    path: '/api/public/product-images/$',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/wishlist': typeof WishlistRoute
   '/products/$id': typeof ProductsIdRoute
   '/products/': typeof ProductsIndexRoute
+  '/api/public/product-images/$': typeof ApiPublicProductImagesSplatRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -126,6 +134,7 @@ export interface FileRoutesByTo {
   '/wishlist': typeof WishlistRoute
   '/products/$id': typeof ProductsIdRoute
   '/products': typeof ProductsIndexRoute
+  '/api/public/product-images/$': typeof ApiPublicProductImagesSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -143,6 +152,7 @@ export interface FileRoutesById {
   '/wishlist': typeof WishlistRoute
   '/products/$id': typeof ProductsIdRoute
   '/products/': typeof ProductsIndexRoute
+  '/api/public/product-images/$': typeof ApiPublicProductImagesSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/products/$id'
     | '/products/'
+    | '/api/public/product-images/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/products/$id'
     | '/products'
+    | '/api/public/product-images/$'
   id:
     | '__root__'
     | '/'
@@ -193,6 +205,7 @@ export interface FileRouteTypes {
     | '/wishlist'
     | '/products/$id'
     | '/products/'
+    | '/api/public/product-images/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -210,6 +223,7 @@ export interface RootRouteChildren {
   WishlistRoute: typeof WishlistRoute
   ProductsIdRoute: typeof ProductsIdRoute
   ProductsIndexRoute: typeof ProductsIndexRoute
+  ApiPublicProductImagesSplatRoute: typeof ApiPublicProductImagesSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -312,6 +326,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProductsIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/product-images/$': {
+      id: '/api/public/product-images/$'
+      path: '/api/public/product-images/$'
+      fullPath: '/api/public/product-images/$'
+      preLoaderRoute: typeof ApiPublicProductImagesSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -330,6 +351,7 @@ const rootRouteChildren: RootRouteChildren = {
   WishlistRoute: WishlistRoute,
   ProductsIdRoute: ProductsIdRoute,
   ProductsIndexRoute: ProductsIndexRoute,
+  ApiPublicProductImagesSplatRoute: ApiPublicProductImagesSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

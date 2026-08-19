@@ -12,6 +12,7 @@ import { ShippingPanel } from "@/components/ShippingPanel";
 import { BrandsPanel } from "@/components/BrandsPanel";
 import { useBrands } from "@/hooks/useBrands";
 import { ChangePasswordPanel } from "@/components/ChangePasswordPanel";
+import { uploadProductImage } from "@/lib/product-images";
 
 
 
@@ -262,8 +263,10 @@ function EditorModal({
   onSave: (p: Product) => void | Promise<void>;
   onCancel: () => void;
 }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const ar = lang === "ar";
   const [p, setP] = useState<Product>(product);
+  const [uploadingImg, setUploadingImg] = useState(false);
   const [benEn, setBenEn] = useState(product.benefits.en.join("\n"));
   const [benAr, setBenAr] = useState(product.benefits.ar.join("\n"));
   const { brands } = useBrands();
@@ -303,8 +306,41 @@ function EditorModal({
             </Row>
           </div>
           <Row label={t("image_url")}>
-            <input value={p.image} onChange={(e) => setP({ ...p, image: e.target.value })} className={inputCls} />
+            <div className="space-y-2">
+              <input value={p.image} onChange={(e) => setP({ ...p, image: e.target.value })} className={inputCls} />
+              <div className="flex items-center gap-3">
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-xs font-medium hover:bg-secondary transition-colors">
+                  <Upload className="h-3.5 w-3.5" />
+                  {uploadingImg ? (ar ? "جارٍ الرفع..." : "Uploading…") : ar ? "رفع صورة" : "Upload image"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={uploadingImg}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = "";
+                      if (!file) return;
+                      setUploadingImg(true);
+                      try {
+                        const url = await uploadProductImage(file, p.id);
+                        setP((prev) => ({ ...prev, image: url }));
+                        toast.success(ar ? "تم رفع الصورة" : "Image uploaded");
+                      } catch (err: any) {
+                        toast.error(err?.message ?? (ar ? "تعذر رفع الصورة" : "Upload failed"));
+                      } finally {
+                        setUploadingImg(false);
+                      }
+                    }}
+                  />
+                </label>
+                {p.image ? (
+                  <img src={p.image} alt="" className="h-12 w-12 rounded-lg object-cover bg-secondary/40" />
+                ) : null}
+              </div>
+            </div>
           </Row>
+
           <div className="grid sm:grid-cols-2 gap-3">
             <Row label={t("price")}>
               <input type="number" value={p.price} onChange={(e) => setP({ ...p, price: Number(e.target.value) })} className={inputCls} />
