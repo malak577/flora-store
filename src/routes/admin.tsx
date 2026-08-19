@@ -12,6 +12,7 @@ import { ShippingPanel } from "@/components/ShippingPanel";
 import { BrandsPanel } from "@/components/BrandsPanel";
 import { useBrands } from "@/hooks/useBrands";
 import { ChangePasswordPanel } from "@/components/ChangePasswordPanel";
+import { uploadProductImage } from "@/lib/product-images";
 
 
 
@@ -262,8 +263,10 @@ function EditorModal({
   onSave: (p: Product) => void | Promise<void>;
   onCancel: () => void;
 }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const ar = lang === "ar";
   const [p, setP] = useState<Product>(product);
+  const [uploadingImg, setUploadingImg] = useState(false);
   const [benEn, setBenEn] = useState(product.benefits.en.join("\n"));
   const [benAr, setBenAr] = useState(product.benefits.ar.join("\n"));
   const { brands } = useBrands();
