@@ -33,18 +33,9 @@ const EMPTY: Product = {
 
 function Admin() {
   const { t, lang } = useI18n();
-  const {
-    products,
-    addProduct,
-    updateProduct,
-    deleteProduct,
-    settings,
-    updateSettings,
-  } = useStore();
   const { session, isAdmin, loading, signOut } = useAdminAuth();
   const ar = lang === "ar";
-  const [editing, setEditing] = useState<Product | null>(null);
-  const [showSettings, setShowSettings] = useState(false);
+
 
   if (loading) {
     return (
