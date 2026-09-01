@@ -4,6 +4,7 @@ import { useStore, priceOf } from "@/lib/store";
 import { useI18n, formatEGP } from "@/lib/i18n";
 import { Check, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
+import { useState } from "react";
 
 export const Route = createFileRoute("/products/$id")({
   component: ProductDetail,
@@ -47,7 +48,24 @@ function ProductDetail() {
     );
   }
 
-  const onSale = product.salePrice != null && product.salePrice < product.price;
+  return <ProductView product={product} />;
+}
+
+function ProductView({ product }: { product: NonNullable<ReturnType<typeof Object>> & any }) {
+  const { addToCart } = useStore();
+  const { t, lang } = useI18n();
+  const navigate = useNavigate();
+  const variants = (product.variants ?? []).filter((v: any) => v.label);
+  const [variantIdx, setVariantIdx] = useState(0);
+  const variant = variants[variantIdx];
+  const gallery: string[] = [product.image, ...(product.images ?? [])].filter(Boolean);
+  const [imgIdx, setImgIdx] = useState(0);
+  const activeImage = variant?.image || gallery[imgIdx] || product.image;
+
+  const price = variant ? variant.price : product.price;
+  const salePrice = variant ? variant.salePrice : product.salePrice;
+  const onSale = salePrice != null && salePrice < price;
+  const effective = onSale ? salePrice! : price;
 
   return (
     <Layout>
@@ -56,8 +74,26 @@ function ProductDetail() {
           ← {t("nav_shop")}
         </Link>
         <div className="mt-6 grid md:grid-cols-2 gap-10">
-          <div className="rounded-3xl overflow-hidden bg-secondary/40 aspect-square">
-            <img src={product.image} alt={product.name[lang]} fetchPriority="high" decoding="async" className="h-full w-full object-cover" />
+          <div>
+            <div className="rounded-3xl overflow-hidden bg-secondary/40 aspect-square">
+              <img src={activeImage} alt={product.name[lang]} fetchPriority="high" decoding="async" className="h-full w-full object-cover" />
+            </div>
+            {gallery.length > 1 && (
+              <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                {gallery.map((url, i) => (
+                  <button
+                    key={url}
+                    onClick={() => setImgIdx(i)}
+                    className={`h-16 w-16 shrink-0 overflow-hidden rounded-xl border transition ${
+                      activeImage === url ? "border-primary" : "border-border hover:border-primary/50"
+                    }`}
+                    aria-label={`Image ${i + 1}`}
+                  >
+                    <img src={url} alt="" loading="lazy" className="h-full w-full object-cover" />
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-primary font-medium">{product.brand}</p>
@@ -77,19 +113,42 @@ function ProductDetail() {
               {onSale ? (
                 <>
                   <span className="text-3xl font-semibold text-primary">
-                    {formatEGP(product.salePrice!, lang)}
+                    {formatEGP(salePrice!, lang)}
                   </span>
                   <span className="text-lg text-muted-foreground line-through">
-                    {formatEGP(product.price, lang)}
+                    {formatEGP(price, lang)}
                   </span>
                   <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full uppercase">
                     {t("sale")}
                   </span>
                 </>
               ) : (
-                <span className="text-3xl font-semibold">{formatEGP(product.price, lang)}</span>
+                <span className="text-3xl font-semibold">{formatEGP(price, lang)}</span>
               )}
             </div>
+
+            {variants.length > 0 && (
+              <div className="mt-6">
+                <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+                  {lang === "ar" ? "اختاري الحجم" : "Choose size"}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {variants.map((v: any, i: number) => (
+                    <button
+                      key={v.label + i}
+                      onClick={() => setVariantIdx(i)}
+                      className={`rounded-full border px-4 py-2 text-sm transition active:scale-95 ${
+                        i === variantIdx
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border hover:border-primary"
+                      }`}
+                    >
+                      {v.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <p className="mt-6 text-sm text-muted-foreground leading-relaxed">
               {product.description[lang]}
@@ -150,7 +209,7 @@ function ProductDetail() {
             </div>
 
             <p className="mt-6 text-xs text-muted-foreground">
-              {t("deposit_50")} • {formatEGP(priceOf(product) / 2, lang)}
+              {t("deposit_50")} • {formatEGP(effective / 2, lang)}
             </p>
           </div>
         </div>
