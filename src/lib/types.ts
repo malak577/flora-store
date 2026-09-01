@@ -47,6 +47,8 @@ export interface CartItem {
 export interface StoreSettings {
   whatsapp: string;
   vodafoneCash: string;
+  instagram: string;
+  tiktok: string;
   
 }
 

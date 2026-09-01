@@ -10,6 +10,8 @@ const LS_FEEDBACK = "flora-feedback-v1";
 const DEFAULT_SETTINGS: StoreSettings = {
   whatsapp: "201018240350",
   vodafoneCash: "01018240350",
+  instagram: "https://instagram.com/florastore",
+  tiktok: "https://tiktok.com/@florastore",
 };
 
 interface StoreCtx {
