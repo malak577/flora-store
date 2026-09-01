@@ -7,6 +7,7 @@ import { useStore } from "@/lib/store";
 import { useBrands } from "@/hooks/useBrands";
 import { useI18n } from "@/lib/i18n";
 import { Sparkles, Truck, ShieldCheck, Award } from "lucide-react";
+import floraLogo from "@/assets/flora-logo.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   component: Index,
