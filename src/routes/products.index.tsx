@@ -18,11 +18,18 @@ export const Route = createFileRoute("/products/")({
 function Products() {
   const { t } = useI18n();
   const { products } = useStore();
-  const { brand } = Route.useSearch();
+  const { brand, q } = Route.useSearch();
   const navigate = Route.useNavigate();
 
+  const term = (q || "").trim().toLowerCase();
   const brands = Array.from(new Set(products.map((p) => p.brand))).sort();
-  const filtered = brand ? products.filter((p) => p.brand === brand) : products;
+  const filtered = products
+    .filter((p) => (brand ? p.brand === brand : true))
+    .filter((p) =>
+      term
+        ? [p.nameEn, p.nameAr, p.brand].some((v) => (v || "").toLowerCase().includes(term))
+        : true,
+    );
 
   return (
     <Layout>
