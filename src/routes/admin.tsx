@@ -695,13 +695,13 @@ function statusStyle(status: OrderStatus) {
 
 const PAGE_SIZE = 20;
 
-function OrdersPanel() {
+function OrdersPanel({ fixedStatus }: { fixedStatus?: OrderStatus } = {}) {
   const { t, lang } = useI18n();
   const ar = lang === "ar";
   const [orders, setOrders] = useState<DbOrder[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
-  const [status, setStatus] = useState<OrderStatus | "all">("all");
+  const [status, setStatus] = useState<OrderStatus | "all">(fixedStatus ?? "all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -756,7 +756,7 @@ function OrdersPanel() {
       </div>
 
       <div className="flex flex-wrap gap-2 mb-5">
-        {filters.map((f) => (
+        {(fixedStatus ? [] : filters).map((f) => (
           <button
             key={f.key}
             type="button"
