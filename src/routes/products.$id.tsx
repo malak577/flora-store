@@ -158,7 +158,7 @@ function ProductView({ product }: { product: Product }) {
               <div className="mt-8 rounded-2xl border border-border bg-secondary/30 p-5">
                 <h2 className="font-serif text-lg mb-3">{t("benefits")}</h2>
                 <ul className="space-y-2">
-                  {product.benefits[lang].map((b, i) => (
+                  {product.benefits[lang].map((b: string, i: number) => (
                     <li key={i} className="flex items-start gap-2 text-sm">
                       <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                       <span>{b}</span>
