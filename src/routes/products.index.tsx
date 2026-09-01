@@ -28,7 +28,7 @@ function Products() {
     .filter((p) => (brand ? p.brand === brand : true))
     .filter((p) =>
       term
-        ? [p.nameEn, p.nameAr, p.brand].some((v) => (v || "").toLowerCase().includes(term))
+        ? [p.name.en, p.name.ar, p.brand].some((v) => (v || "").toLowerCase().includes(term))
         : true,
     );
 

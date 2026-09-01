@@ -25,7 +25,7 @@ export function SearchBar({ className = "", onNavigate }: { className?: string; 
   const matches = term
     ? products
         .filter((p) =>
-          [p.nameEn, p.nameAr, p.brand].some((v) => (v || "").toLowerCase().includes(term)),
+          [p.name.en, p.name.ar, p.brand].some((v) => (v || "").toLowerCase().includes(term)),
         )
         .slice(0, 6)
     : [];
@@ -93,7 +93,7 @@ export function SearchBar({ className = "", onNavigate }: { className?: string; 
                       <img src={p.image} alt="" loading="lazy" className="h-10 w-10 rounded-lg object-cover shrink-0" />
                     )}
                     <span className="min-w-0">
-                      <span className="block truncate text-sm">{ar && p.nameAr ? p.nameAr : p.nameEn}</span>
+                      <span className="block truncate text-sm">{ar && p.name.ar ? p.name.ar : p.name.en}</span>
                       <span className="block truncate text-xs text-muted-foreground">{p.brand}</span>
                     </span>
                   </Link>
