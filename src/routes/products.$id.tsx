@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Layout } from "@/components/Layout";
-import { useStore, priceOf } from "@/lib/store";
+import { useStore } from "@/lib/store";
+import type { Product } from "@/lib/types";
 import { useI18n, formatEGP } from "@/lib/i18n";
 import { Check, ShoppingBag } from "lucide-react";
 import { toast } from "sonner";
@@ -12,9 +13,8 @@ export const Route = createFileRoute("/products/$id")({
 
 function ProductDetail() {
   const { id } = Route.useParams();
-  const { products, productsLoading, addToCart } = useStore();
-  const { t, lang } = useI18n();
-  const navigate = useNavigate();
+  const { products, productsLoading } = useStore();
+  const { t } = useI18n();
   const product = products.find((p) => p.id === id);
 
   if (!product && productsLoading) {
@@ -51,7 +51,7 @@ function ProductDetail() {
   return <ProductView product={product} />;
 }
 
-function ProductView({ product }: { product: NonNullable<ReturnType<typeof Object>> & any }) {
+function ProductView({ product }: { product: Product }) {
   const { addToCart } = useStore();
   const { t, lang } = useI18n();
   const navigate = useNavigate();
