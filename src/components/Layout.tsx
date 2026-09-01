@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useStore } from "@/lib/store";
 import { SocialLinks } from "@/components/SocialLinks";
+import { SearchBar } from "@/components/SearchBar";
 import floraLogo from "@/assets/flora-logo.jpg.asset.json";
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -33,6 +34,8 @@ export function Layout({ children }: { children: ReactNode }) {
             <Link to="/about" className="hover:text-primary transition">{ar ? "من نحن" : "About"}</Link>
             <Link to="/contact" className="hover:text-primary transition">{ar ? "تواصل" : "Contact"}</Link>
           </nav>
+
+          <SearchBar className="hidden lg:block flex-1 max-w-xs" />
 
           <div className="flex items-center gap-1.5">
             <SocialLinks className="hidden sm:flex" size="sm" />
@@ -77,9 +80,13 @@ export function Layout({ children }: { children: ReactNode }) {
             </button>
           </div>
         </div>
+        <div className="lg:hidden border-t border-border px-4 py-2.5">
+          <SearchBar />
+        </div>
         {open && (
           <div className="md:hidden border-t border-border bg-background">
             <nav className="mx-auto max-w-7xl px-4 py-3 flex flex-col gap-3 text-sm">
+              <SearchBar onNavigate={() => setOpen(false)} />
               <Link to="/" onClick={() => setOpen(false)}>{t("nav_home")}</Link>
               <Link to="/products" onClick={() => setOpen(false)}>{t("nav_shop")}</Link>
               <Link to="/wishlist" onClick={() => setOpen(false)}>{ar ? "المفضلة" : "Wishlist"}</Link>
