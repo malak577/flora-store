@@ -3,6 +3,7 @@ import { ShoppingBag, Menu, X, Globe, Heart } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useStore } from "@/lib/store";
+import { SocialLinks } from "@/components/SocialLinks";
 
 export function Layout({ children }: { children: ReactNode }) {
   const { t, lang, setLang } = useI18n();
@@ -29,6 +30,7 @@ export function Layout({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="flex items-center gap-1.5">
+            <SocialLinks className="hidden sm:flex" size="sm" />
             <button
               onClick={() => setLang(lang === "en" ? "ar" : "en")}
               className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-xs font-medium hover:bg-secondary active:scale-95 transition"
@@ -78,6 +80,7 @@ export function Layout({ children }: { children: ReactNode }) {
               <Link to="/wishlist" onClick={() => setOpen(false)}>{ar ? "المفضلة" : "Wishlist"}</Link>
               <Link to="/about" onClick={() => setOpen(false)}>{ar ? "من نحن" : "About"}</Link>
               <Link to="/contact" onClick={() => setOpen(false)}>{ar ? "تواصل" : "Contact"}</Link>
+              <SocialLinks className="-ms-2" />
               <Link to="/admin" onClick={() => setOpen(false)}>{t("nav_admin")}</Link>
             </nav>
           </div>
@@ -94,6 +97,7 @@ export function Layout({ children }: { children: ReactNode }) {
               <span className="font-serif text-xl">{t("brand_name")}</span>
             </div>
             <p className="mt-3 text-sm text-muted-foreground max-w-xs">{t("footer_tagline")}</p>
+            <SocialLinks className="mt-4 -ms-2" />
           </div>
           <FooterCol title={ar ? "المتجر" : "Shop"} links={[
             { to: "/products", label: t("nav_shop") },
