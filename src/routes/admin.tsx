@@ -99,24 +99,37 @@ function Admin() {
   }
 
 
+  return <AdminDashboard signOut={signOut} />;
+}
+
+type TabKey = "products" | "orders" | "confirmed" | "bundle" | "shipping" | "settings";
+
+function AdminDashboard({ signOut }: { signOut: () => void | Promise<void> }) {
+  const { t, lang } = useI18n();
+  const ar = lang === "ar";
+  const [tab, setTab] = useState<TabKey>("products");
+
+  const tabs: { key: TabKey; label: string }[] = [
+    { key: "products", label: ar ? "المنتجات" : "Products" },
+    { key: "orders", label: ar ? "الأوردرات" : "Orders" },
+    { key: "confirmed", label: ar ? "الأوردرات المتأكدة" : "Confirmed orders" },
+    { key: "bundle", label: ar ? "تجميع المنتجات" : "Product picking" },
+    { key: "shipping", label: ar ? "الشحن" : "Shipping" },
+    { key: "settings", label: t("settings") },
+  ];
+
   return (
     <Layout>
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-10">
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
-          <h1 className="font-serif text-3xl sm:text-4xl">{t("nav_admin")}</h1>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setShowSettings((v) => !v)}
+        <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 mb-6 sm:flex sm:flex-wrap sm:justify-between">
+          <h1 className="truncate font-serif text-2xl sm:text-4xl">{t("nav_admin")}</h1>
+          <div className="flex shrink-0 gap-2">
+            <Link
+              to="/"
               className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm hover:bg-secondary"
             >
-              <Cog className="h-4 w-4" /> {t("settings")}
-            </button>
-            <button
-              onClick={() => setEditing({ ...EMPTY, id: crypto.randomUUID() })}
-              className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground px-4 py-2 text-sm hover:bg-primary/90"
-            >
-              <Plus className="h-4 w-4" /> {t("add_product")}
-            </button>
+              {ar ? "العودة للمتجر" : "Back to store"}
+            </Link>
             <button
               onClick={() => void signOut()}
               className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm hover:bg-secondary"
@@ -124,135 +137,289 @@ function Admin() {
               <LogOut className="h-4 w-4" /> {t("logout")}
             </button>
           </div>
-        </div>
+        </header>
 
-        {showSettings && (
-          <div className="mb-8 rounded-2xl border border-border bg-card p-6 space-y-4">
-            <h2 className="font-serif text-xl">{t("settings")}</h2>
-            <label className="block">
-              <span className="text-sm font-medium">{t("wa_number")}</span>
-              <input
-                value={settings.whatsapp}
-                onChange={(e) => updateSettings({ whatsapp: e.target.value })}
-                placeholder="201234567890"
-                className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm"
-              />
-            </label>
-            <label className="block">
-              <span className="text-sm font-medium">{t("vf_number")}</span>
-              <input
-                value={settings.vodafoneCash}
-                onChange={(e) => updateSettings({ vodafoneCash: e.target.value })}
-                placeholder="01234567890"
-                className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm"
-              />
-            </label>
-            <p className="text-xs text-muted-foreground">
-              {lang === "ar"
-                ? "الدخول إلى لوحة التحكم يتم عبر حساب الإدارة (بريد إلكتروني وكلمة مرور)."
-                : "Dashboard access is controlled by your admin account (email + password)."}
-            </p>
+        <nav className="mb-8 -mx-4 sm:mx-0 overflow-x-auto border-b border-border">
+          <div className="flex min-w-max gap-1 px-4 sm:px-0">
+            {tabs.map((x) => (
+              <button
+                key={x.key}
+                onClick={() => setTab(x.key)}
+                className={`whitespace-nowrap px-4 py-3 text-sm transition-colors border-b-2 -mb-px ${
+                  tab === x.key
+                    ? "border-primary text-foreground font-medium"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {x.label}
+              </button>
+            ))}
+          </div>
+        </nav>
 
-            <ChangePasswordPanel />
-
-            <WhatsAppPreview />
+        {tab === "products" && <ProductsPanel />}
+        {tab === "orders" && <OrdersPanel />}
+        {tab === "confirmed" && <OrdersPanel fixedStatus="confirmed" />}
+        {tab === "bundle" && (
+          <div className="rounded-2xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
+            {ar ? "صفحة تجميع المنتجات قيد التنفيذ." : "Product picking page coming next."}
           </div>
         )}
-
-        <BrandsPanel />
-
-        <ShippingPanel />
-
-        <OrdersPanel />
-
-
-        <FeedbackPanel />
-
-
-
-
-
-        <div className="overflow-x-auto rounded-2xl border border-border bg-card">
-          <table className="w-full text-sm">
-            <thead className="bg-secondary/50 text-start">
-              <tr>
-                <th className="p-3 text-start">Image</th>
-                <th className="p-3 text-start">Brand</th>
-                <th className="p-3 text-start">Name</th>
-                <th className="p-3 text-start">Price</th>
-                <th className="p-3 text-start">Availability</th>
-                <th className="p-3"></th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((p) => (
-                <tr key={p.id} className="border-t border-border">
-                  <td className="p-3">
-                    <img src={p.image} alt="" loading="lazy" decoding="async" width={48} height={48} className="h-12 w-12 rounded-lg object-cover bg-secondary/40" />
-                  </td>
-                  <td className="p-3 text-muted-foreground">{p.brand}</td>
-                  <td className="p-3">{p.name[lang]}</td>
-                  <td className="p-3">
-                    {p.salePrice ? (
-                      <span>
-                        <b className="text-primary">{p.salePrice}</b>{" "}
-                        <span className="line-through text-muted-foreground">{p.price}</span> EGP
-                      </span>
-                    ) : (
-                      <span>{p.price} EGP</span>
-                    )}
-                  </td>
-                  <td className="p-3 text-xs">
-                    {p.availability === "instant" ? t("instant_ship") : t("preorder")}
-                  </td>
-                  <td className="p-3">
-                    <div className="flex gap-1 justify-end">
-                      <button
-                        onClick={() => setEditing(p)}
-                        className="h-8 w-8 rounded-full hover:bg-secondary inline-flex items-center justify-center"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          if (confirm("Delete this product?"))
-                            deleteProduct(p.id).catch((e) =>
-                              toast.error(e instanceof Error ? e.message : "Could not delete"),
-                            );
-                        }}
-                        className="h-8 w-8 rounded-full hover:bg-destructive/10 text-destructive inline-flex items-center justify-center"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {editing && (
-          <EditorModal
-            product={editing}
-            onCancel={() => setEditing(null)}
-            onSave={async (p) => {
-              const exists = products.find((x) => x.id === p.id);
-              try {
-                if (exists) await updateProduct(p);
-                else await addProduct(p);
-                toast.success(ar ? "تم الحفظ" : "Saved");
-                setEditing(null);
-              } catch (e) {
-                toast.error(e instanceof Error ? e.message : (ar ? "تعذر الحفظ" : "Could not save"));
-              }
-            }}
-          />
+        {tab === "shipping" && (
+          <>
+            <ShippingPanel />
+            <BrandsPanel />
+          </>
         )}
+        {tab === "settings" && <SettingsPanel />}
       </section>
     </Layout>
   );
 }
+
+function SettingsPanel() {
+  const { t, lang } = useI18n();
+  const { settings, updateSettings } = useStore();
+  return (
+    <div className="space-y-6">
+      <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
+        <h2 className="font-serif text-xl">{t("settings")}</h2>
+        <label className="block">
+          <span className="text-sm font-medium">{t("wa_number")}</span>
+          <input
+            value={settings.whatsapp}
+            onChange={(e) => updateSettings({ whatsapp: e.target.value })}
+            placeholder="201234567890"
+            className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm"
+          />
+        </label>
+        <label className="block">
+          <span className="text-sm font-medium">{t("vf_number")}</span>
+          <input
+            value={settings.vodafoneCash}
+            onChange={(e) => updateSettings({ vodafoneCash: e.target.value })}
+            placeholder="01234567890"
+            className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm"
+          />
+        </label>
+        <ChangePasswordPanel />
+        <WhatsAppPreview />
+      </div>
+      <FeedbackPanel />
+    </div>
+  );
+}
+
+function ProductsPanel() {
+  const { t, lang } = useI18n();
+  const ar = lang === "ar";
+  const { products, addProduct, updateProduct, deleteProduct } = useStore();
+  const { brands } = useBrands();
+  const [editing, setEditing] = useState<Product | null>(null);
+  const [q, setQ] = useState("");
+  const [cat, setCat] = useState("all");
+  const [brandId, setBrandId] = useState("all");
+  const [stock, setStock] = useState<"all" | "in" | "out">("all");
+
+  const categories = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const p of products) {
+      const key = (p.category?.en || p.category?.ar || "").trim();
+      if (key) map.set(key, ar ? p.category?.ar || key : p.category?.en || key);
+    }
+    return [...map.entries()];
+  }, [products, ar]);
+
+  const list = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    return products.filter((p) => {
+      if (
+        term &&
+        ![p.name.en, p.name.ar, p.brand, p.id].some((v) => (v ?? "").toLowerCase().includes(term))
+      )
+        return false;
+      if (cat !== "all" && (p.category?.en || p.category?.ar || "").trim() !== cat) return false;
+      if (brandId !== "all" && (p.brandId ?? "") !== brandId) return false;
+      if (stock === "in" && !(p.stock == null || p.stock > 0)) return false;
+      if (stock === "out" && !(p.stock != null && p.stock <= 0)) return false;
+      return true;
+    });
+  }, [products, q, cat, brandId, stock]);
+
+  const selCls =
+    "mt-1 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/40";
+
+  return (
+    <div className="space-y-5">
+      <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 space-y-4">
+        <label className="block">
+          <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            {ar ? "بحث بالاسم أو الماركة" : "Search by name or brand"}
+          </span>
+          <input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder={ar ? "ابحثي..." : "Search…"}
+            className={selCls}
+          />
+        </label>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          <label className="block">
+            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {ar ? "القسم" : "Category"}
+            </span>
+            <select value={cat} onChange={(e) => setCat(e.target.value)} className={selCls}>
+              <option value="all">{ar ? "الكل" : "All"}</option>
+              {categories.map(([key, label]) => (
+                <option key={key} value={key}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {ar ? "الماركة" : "Brand"}
+            </span>
+            <select value={brandId} onChange={(e) => setBrandId(e.target.value)} className={selCls}>
+              <option value="all">{ar ? "الكل" : "All"}</option>
+              {brands.map((b) => (
+                <option key={b.id} value={b.id}>
+                  {ar ? b.nameAr || b.nameEn : b.nameEn}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="block">
+            <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {ar ? "المخزون" : "Stock"}
+            </span>
+            <select value={stock} onChange={(e) => setStock(e.target.value as any)} className={selCls}>
+              <option value="all">{ar ? "الكل" : "All"}</option>
+              <option value="in">{ar ? "متوفر" : "In stock"}</option>
+              <option value="out">{ar ? "غير متوفر" : "Out of stock"}</option>
+            </select>
+          </label>
+        </div>
+
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-sm text-muted-foreground">
+            {list.length} {ar ? "منتج" : "products"}
+          </span>
+          <button
+            onClick={() => setEditing({ ...EMPTY, id: crypto.randomUUID() })}
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm text-primary-foreground hover:bg-primary/90"
+          >
+            <Plus className="h-4 w-4" /> {ar ? "منتج جديد" : "New product"}
+          </button>
+        </div>
+      </div>
+
+      <div className="overflow-x-auto rounded-2xl border border-border bg-card">
+        <table className="w-full text-sm">
+          <thead className="bg-secondary/50">
+            <tr>
+              <th className="p-3 text-start">{ar ? "المنتج" : "Product"}</th>
+              <th className="p-3 text-start">{ar ? "الماركة" : "Brand"}</th>
+              <th className="p-3 text-start">{ar ? "القسم" : "Category"}</th>
+              <th className="p-3 text-start">{ar ? "المقاس" : "Size"}</th>
+              <th className="p-3 text-start">{ar ? "السعر" : "Price"}</th>
+              <th className="p-3 text-start">{ar ? "المخزون" : "Stock"}</th>
+              <th className="p-3"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {list.map((p) => (
+              <tr
+                key={p.id}
+                className="border-t border-border cursor-pointer hover:bg-secondary/30"
+                onClick={() => setEditing(p)}
+              >
+                <td className="p-3">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <img
+                      src={p.image}
+                      alt=""
+                      loading="lazy"
+                      className="h-12 w-12 shrink-0 rounded-lg bg-secondary/40 object-cover"
+                    />
+                    <span className="min-w-0 truncate">{p.name[lang] || p.name.en || p.name.ar}</span>
+                  </div>
+                </td>
+                <td className="p-3 text-muted-foreground">{p.brand || "—"}</td>
+                <td className="p-3 text-muted-foreground">
+                  {(ar ? p.category?.ar || p.category?.en : p.category?.en || p.category?.ar) || "—"}
+                </td>
+                <td className="p-3 text-muted-foreground">{p.size || "—"}</td>
+                <td className="p-3">
+                  {p.salePrice ? (
+                    <span>
+                      <b className="text-primary">{formatEGP(p.salePrice, lang)}</b>{" "}
+                      <span className="line-through text-muted-foreground">{formatEGP(p.price, lang)}</span>
+                    </span>
+                  ) : (
+                    formatEGP(p.price, lang)
+                  )}
+                </td>
+                <td className="p-3">{p.stock == null ? "—" : p.stock}</td>
+                <td className="p-3" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex justify-end gap-1">
+                    <button
+                      onClick={() => setEditing(p)}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full hover:bg-secondary"
+                      aria-label={t("edit")}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (confirm(ar ? "حذف هذا المنتج؟" : "Delete this product?"))
+                          deleteProduct(p.id).catch((e) =>
+                            toast.error(e instanceof Error ? e.message : "Could not delete"),
+                          );
+                      }}
+                      className="inline-flex h-8 w-8 items-center justify-center rounded-full text-destructive hover:bg-destructive/10"
+                      aria-label={t("delete")}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {list.length === 0 && (
+              <tr>
+                <td colSpan={7} className="p-8 text-center text-sm text-muted-foreground">
+                  {ar ? "لا توجد منتجات مطابقة." : "No matching products."}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {editing && (
+        <EditorModal
+          product={editing}
+          onCancel={() => setEditing(null)}
+          onSave={async (p) => {
+            const exists = products.find((x) => x.id === p.id);
+            try {
+              if (exists) await updateProduct(p);
+              else await addProduct(p);
+              toast.success(ar ? "تم الحفظ" : "Saved");
+              setEditing(null);
+            } catch (e) {
+              toast.error(e instanceof Error ? e.message : ar ? "تعذر الحفظ" : "Could not save");
+            }
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
 
 function EditorModal({
   product,
