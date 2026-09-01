@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Product, Availability, ProductBadge } from "./types";
 
 const COLUMNS =
-  "id,brand,brand_id,name_en,name_ar,description_en,description_ar,usage_en,usage_ar,ingredients_en,ingredients_ar,benefits_en,benefits_ar,price,sale_price,image,availability,rating,review_count,badge,best_seller,sort_order";
+  "id,brand,brand_id,name_en,name_ar,description_en,description_ar,usage_en,usage_ar,ingredients_en,ingredients_ar,benefits_en,benefits_ar,price,sale_price,image,availability,rating,review_count,badge,best_seller,sort_order,category_en,category_ar,stock,size";
 
 function pair(en?: string | null, ar?: string | null) {
   const e = (en ?? "").trim();
@@ -20,6 +20,9 @@ export function mapRow(row: Record<string, any>): Product {
     description: { en: row.description_en ?? "", ar: row.description_ar ?? "" },
     usage: pair(row.usage_en, row.usage_ar),
     ingredients: pair(row.ingredients_en, row.ingredients_ar),
+    category: pair(row.category_en, row.category_ar),
+    stock: row.stock == null ? undefined : Number(row.stock),
+    size: row.size ?? undefined,
     benefits: { en: row.benefits_en ?? [], ar: row.benefits_ar ?? [] },
     price: Number(row.price ?? 0),
     salePrice: row.sale_price == null ? undefined : Number(row.sale_price),
@@ -51,6 +54,10 @@ export function toRow(p: Product) {
     usage_ar: clean(p.usage?.ar),
     ingredients_en: clean(p.ingredients?.en),
     ingredients_ar: clean(p.ingredients?.ar),
+    category_en: (p.category?.en ?? "").trim(),
+    category_ar: (p.category?.ar ?? "").trim(),
+    stock: p.stock == null || Number.isNaN(p.stock) ? null : p.stock,
+    size: clean(p.size),
     benefits_en: p.benefits?.en ?? [],
     benefits_ar: p.benefits?.ar ?? [],
     price: p.price ?? 0,
