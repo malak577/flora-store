@@ -4,6 +4,7 @@ import { Layout } from "@/components/Layout";
 import { ProductCard } from "@/components/ProductCard";
 import { useStore } from "@/lib/store";
 import { useI18n } from "@/lib/i18n";
+import { SearchBar } from "@/components/SearchBar";
 
 const searchSchema = z.object({
   brand: z.string().optional(),
@@ -36,12 +37,17 @@ function Products() {
       <section className="mx-auto max-w-7xl px-4 sm:px-6 py-10">
         <div className="mb-6">
           <h1 className="font-serif text-3xl sm:text-4xl">{t("products")}</h1>
-          <p className="text-sm text-muted-foreground mt-2">{t("filter_brand")}</p>
+          <p className="text-sm text-muted-foreground mt-2">
+            {term ? `${filtered.length} • "${(q || "").trim()}"` : t("filter_brand")}
+          </p>
+          <div className="mt-4 max-w-md">
+            <SearchBar />
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2 mb-8">
           <button
-            onClick={() => navigate({ search: {} })}
+            onClick={() => navigate({ search: (prev) => ({ ...prev, brand: undefined }) })}
             className={`rounded-full px-4 py-2 text-sm font-medium border transition ${
               !brand
                 ? "bg-primary text-primary-foreground border-primary"
@@ -53,7 +59,7 @@ function Products() {
           {brands.map((b) => (
             <button
               key={b}
-              onClick={() => navigate({ search: { brand: b } })}
+              onClick={() => navigate({ search: (prev) => ({ ...prev, brand: b }) })}
               className={`rounded-full px-4 py-2 text-sm font-medium border transition ${
                 brand === b
                   ? "bg-primary text-primary-foreground border-primary"
