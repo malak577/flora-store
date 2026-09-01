@@ -9,7 +9,11 @@ export interface Product {
   description: { en: string; ar: string };
   usage?: { en: string; ar: string };
   ingredients?: { en: string; ar: string };
+  category?: { en: string; ar: string };
+  stock?: number;
+  size?: string;
   sortOrder?: number;
+
   benefits: { en: string[]; ar: string[] };
   price: number; // EGP
   salePrice?: number; // EGP, optional

@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.15"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -113,6 +113,8 @@ export type Database = {
           best_seller: boolean
           brand: string
           brand_id: string | null
+          category_ar: string
+          category_en: string
           created_at: string
           description_ar: string
           description_en: string
@@ -126,7 +128,9 @@ export type Database = {
           rating: number | null
           review_count: number | null
           sale_price: number | null
+          size: string | null
           sort_order: number
+          stock: number | null
           updated_at: string
           usage_ar: string | null
           usage_en: string | null
@@ -139,6 +143,8 @@ export type Database = {
           best_seller?: boolean
           brand?: string
           brand_id?: string | null
+          category_ar?: string
+          category_en?: string
           created_at?: string
           description_ar?: string
           description_en?: string
@@ -152,7 +158,9 @@ export type Database = {
           rating?: number | null
           review_count?: number | null
           sale_price?: number | null
+          size?: string | null
           sort_order?: number
+          stock?: number | null
           updated_at?: string
           usage_ar?: string | null
           usage_en?: string | null
@@ -165,6 +173,8 @@ export type Database = {
           best_seller?: boolean
           brand?: string
           brand_id?: string | null
+          category_ar?: string
+          category_en?: string
           created_at?: string
           description_ar?: string
           description_en?: string
@@ -178,7 +188,9 @@ export type Database = {
           rating?: number | null
           review_count?: number | null
           sale_price?: number | null
+          size?: string | null
           sort_order?: number
+          stock?: number | null
           updated_at?: string
           usage_ar?: string | null
           usage_en?: string | null
