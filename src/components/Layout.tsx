@@ -98,7 +98,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <div className="flex items-center gap-2">
-              <div className="h-9 w-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-serif">F</div>
+              <img src={floraLogo.url} alt={t("brand_name")} className="h-9 w-9 rounded-full object-cover" />
               <span className="font-serif text-xl">{t("brand_name")}</span>
             </div>
             <p className="mt-3 text-sm text-muted-foreground max-w-xs">{t("footer_tagline")}</p>
