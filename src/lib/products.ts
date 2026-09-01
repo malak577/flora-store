@@ -1,8 +1,23 @@
 import { supabase } from "@/integrations/supabase/client";
-import type { Product, Availability, ProductBadge } from "./types";
+import type { Product, Availability, ProductBadge, ProductVariant } from "./types";
 
 const COLUMNS =
-  "id,brand,brand_id,name_en,name_ar,description_en,description_ar,usage_en,usage_ar,ingredients_en,ingredients_ar,benefits_en,benefits_ar,price,sale_price,image,availability,rating,review_count,badge,best_seller,sort_order,category_en,category_ar,stock,size";
+  "id,brand,brand_id,name_en,name_ar,description_en,description_ar,usage_en,usage_ar,ingredients_en,ingredients_ar,benefits_en,benefits_ar,price,sale_price,image,images,variants,availability,rating,review_count,badge,best_seller,sort_order,category_en,category_ar,stock,size";
+
+function mapVariants(raw: unknown): ProductVariant[] {
+  if (!Array.isArray(raw)) return [];
+  return raw
+    .filter((v) => v && typeof v === "object")
+    .map((v: any) => ({
+      label: String(v.label ?? "").trim(),
+      price: Number(v.price ?? 0),
+      salePrice: v.salePrice == null || v.salePrice === "" ? undefined : Number(v.salePrice),
+      image: v.image ? String(v.image) : undefined,
+    }))
+    .filter((v) => v.label !== "")
+    .slice(0, 3);
+}
+
 
 function pair(en?: string | null, ar?: string | null) {
   const e = (en ?? "").trim();
