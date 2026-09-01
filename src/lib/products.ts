@@ -42,6 +42,8 @@ export function mapRow(row: Record<string, any>): Product {
     price: Number(row.price ?? 0),
     salePrice: row.sale_price == null ? undefined : Number(row.sale_price),
     image: row.image ?? "",
+    images: Array.isArray(row.images) ? (row.images as string[]).filter(Boolean) : [],
+    variants: mapVariants(row.variants),
     availability: (row.availability ?? "instant") as Availability,
     rating: row.rating == null ? undefined : Number(row.rating),
     reviewCount: row.review_count == null ? undefined : Number(row.review_count),
@@ -78,6 +80,16 @@ export function toRow(p: Product) {
     price: p.price ?? 0,
     sale_price: p.salePrice == null || Number.isNaN(p.salePrice) ? null : p.salePrice,
     image: p.image ?? "",
+    images: (p.images ?? []).filter(Boolean),
+    variants: (p.variants ?? [])
+      .filter((v) => (v.label ?? "").trim() !== "")
+      .slice(0, 3)
+      .map((v) => ({
+        label: v.label.trim(),
+        price: Number(v.price ?? 0),
+        salePrice: v.salePrice == null || Number.isNaN(v.salePrice) ? null : Number(v.salePrice),
+        image: v.image ?? null,
+      })),
     availability: p.availability ?? "instant",
     rating: p.rating ?? null,
     review_count: p.reviewCount ?? null,
