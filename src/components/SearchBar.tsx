@@ -30,8 +30,8 @@ export function SearchBar({ className = "", onNavigate }: { className?: string; 
         .slice(0, 6)
     : [];
 
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
+  function submit(e?: { preventDefault?: () => void }) {
+    e?.preventDefault?.();
     if (!term) return;
     setOpen(false);
     onNavigate?.();
@@ -103,7 +103,7 @@ export function SearchBar({ className = "", onNavigate }: { className?: string; 
           )}
           {term && (
             <button
-              onClick={submit as unknown as () => void}
+              onClick={() => submit()}
               className="w-full border-t border-border px-4 py-2.5 text-sm text-primary hover:bg-secondary transition text-start"
             >
               {ar ? `عرض كل النتائج عن "${q.trim()}"` : `See all results for "${q.trim()}"`}
