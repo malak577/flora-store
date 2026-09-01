@@ -7,6 +7,7 @@ import { useI18n } from "@/lib/i18n";
 
 const searchSchema = z.object({
   brand: z.string().optional(),
+  q: z.string().optional(),
 });
 
 export const Route = createFileRoute("/products/")({
