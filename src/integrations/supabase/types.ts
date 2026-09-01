@@ -120,6 +120,7 @@ export type Database = {
           description_en: string
           id: string
           image: string
+          images: string[]
           ingredients_ar: string | null
           ingredients_en: string | null
           name_ar: string
@@ -134,6 +135,7 @@ export type Database = {
           updated_at: string
           usage_ar: string | null
           usage_en: string | null
+          variants: Json
         }
         Insert: {
           availability?: string
@@ -150,6 +152,7 @@ export type Database = {
           description_en?: string
           id: string
           image?: string
+          images?: string[]
           ingredients_ar?: string | null
           ingredients_en?: string | null
           name_ar?: string
@@ -164,6 +167,7 @@ export type Database = {
           updated_at?: string
           usage_ar?: string | null
           usage_en?: string | null
+          variants?: Json
         }
         Update: {
           availability?: string
@@ -180,6 +184,7 @@ export type Database = {
           description_en?: string
           id?: string
           image?: string
+          images?: string[]
           ingredients_ar?: string | null
           ingredients_en?: string | null
           name_ar?: string
@@ -194,6 +199,7 @@ export type Database = {
           updated_at?: string
           usage_ar?: string | null
           usage_en?: string | null
+          variants?: Json
         }
         Relationships: [
           {
