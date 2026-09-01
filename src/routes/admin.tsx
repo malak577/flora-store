@@ -342,6 +342,38 @@ function EditorModal({
           </Row>
 
           <div className="grid sm:grid-cols-2 gap-3">
+            <Row label={ar ? "القسم (EN)" : "Category (EN)"}>
+              <input
+                value={p.category?.en ?? ""}
+                onChange={(e) => setP({ ...p, category: { en: e.target.value, ar: p.category?.ar ?? "" } })}
+                className={inputCls}
+              />
+            </Row>
+            <Row label={ar ? "القسم (AR)" : "Category (AR)"}>
+              <input
+                value={p.category?.ar ?? ""}
+                onChange={(e) => setP({ ...p, category: { en: p.category?.en ?? "", ar: e.target.value } })}
+                className={inputCls}
+                dir="rtl"
+              />
+            </Row>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-3">
+            <Row label={ar ? "المخزون" : "Stock"}>
+              <input
+                type="number"
+                value={p.stock ?? ""}
+                onChange={(e) => setP({ ...p, stock: e.target.value === "" ? undefined : Number(e.target.value) })}
+                className={inputCls}
+              />
+            </Row>
+            <Row label={ar ? "المقاس / الحجم" : "Size / Volume"}>
+              <input value={p.size ?? ""} onChange={(e) => setP({ ...p, size: e.target.value })} className={inputCls} />
+            </Row>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-3">
             <Row label={t("price")}>
               <input type="number" value={p.price} onChange={(e) => setP({ ...p, price: Number(e.target.value) })} className={inputCls} />
             </Row>
@@ -354,6 +386,7 @@ function EditorModal({
               />
             </Row>
           </div>
+
           <Row label={t("availability")}>
             <select
               value={p.availability}
