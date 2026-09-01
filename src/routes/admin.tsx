@@ -193,6 +193,25 @@ function SettingsPanel() {
             className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm"
           />
         </label>
+        <label className="block">
+          <span className="text-sm font-medium">{lang === "ar" ? "رابط إنستجرام" : "Instagram link"}</span>
+          <input
+            value={settings.instagram}
+            onChange={(e) => updateSettings({ instagram: e.target.value })}
+            placeholder="https://instagram.com/yourstore"
+            className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm"
+          />
+        </label>
+        <label className="block">
+          <span className="text-sm font-medium">{lang === "ar" ? "رابط تيك توك" : "TikTok link"}</span>
+          <input
+            value={settings.tiktok}
+            onChange={(e) => updateSettings({ tiktok: e.target.value })}
+            placeholder="https://tiktok.com/@yourstore"
+            className="mt-1.5 w-full rounded-xl border border-input bg-background px-4 py-2.5 text-sm"
+          />
+        </label>
+
         <ChangePasswordPanel />
         <WhatsAppPreview />
       </div>
