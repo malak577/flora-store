@@ -3,7 +3,7 @@ import { Layout } from "@/components/Layout";
 import { useStore, priceOf } from "@/lib/store";
 import { useI18n, formatEGP } from "@/lib/i18n";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { OrderStatus, Product, Availability } from "@/lib/types";
+import type { OrderStatus, Product, Availability, ProductVariant } from "@/lib/types";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { fetchOrders, friendlyError, setOrderStatus, removeOrder, receiptUrl, type DbOrder } from "@/lib/orders";
 import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle, Check, X, ClipboardList, Upload, Image as ImageIcon, Receipt } from "lucide-react";
@@ -518,6 +518,9 @@ function EditorModal({
             </div>
           </Row>
 
+          <GalleryEditor p={p} setP={setP} />
+          <VariantsEditor p={p} setP={setP} />
+
           <div className="grid sm:grid-cols-2 gap-3">
             <Row label={ar ? "القسم (EN)" : "Category (EN)"}>
               <input
@@ -619,6 +622,147 @@ function EditorModal({
           </button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function GalleryEditor({ p, setP }: { p: Product; setP: React.Dispatch<React.SetStateAction<Product>> }) {
+  const { lang } = useI18n();
+  const ar = lang === "ar";
+  const [busy, setBusy] = useState(false);
+  const images = p.images ?? [];
+
+  async function upload(files: FileList) {
+    setBusy(true);
+    try {
+      const urls: string[] = [];
+      for (const file of Array.from(files)) urls.push(await uploadProductImage(file, p.id));
+      setP((prev) => ({
+        ...prev,
+        image: prev.image || urls[0] || "",
+        images: [...(prev.images ?? []), ...urls],
+      }));
+      toast.success(ar ? "تم رفع الصور" : "Images uploaded");
+    } catch (err: any) {
+      toast.error(err?.message ?? (ar ? "تعذر رفع الصور" : "Upload failed"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <Row label={ar ? "معرض صور المنتج" : "Product gallery"}>
+      <div className="mt-1 space-y-3">
+        <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border border-border bg-secondary/40 px-3 py-1.5 text-xs font-medium hover:bg-secondary transition-colors">
+          <ImageIcon className="h-3.5 w-3.5" />
+          {busy ? (ar ? "جارٍ الرفع..." : "Uploading…") : ar ? "رفع صور متعددة" : "Upload images"}
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            className="hidden"
+            disabled={busy}
+            onChange={(e) => {
+              const files = e.target.files;
+              e.target.value = "";
+              if (files && files.length) void upload(files);
+            }}
+          />
+        </label>
+        {images.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {images.map((url) => (
+              <div key={url} className="relative">
+                <img src={url} alt="" className="h-16 w-16 rounded-lg object-cover bg-secondary/40" />
+                <button
+                  type="button"
+                  onClick={() => setP((prev) => ({ ...prev, images: (prev.images ?? []).filter((x) => x !== url) }))}
+                  className="absolute -top-1.5 -end-1.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-destructive text-destructive-foreground"
+                  aria-label={ar ? "حذف" : "Remove"}
+                >
+                  <X className="h-3 w-3" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setP((prev) => ({ ...prev, image: url }))}
+                  className="mt-1 block w-16 truncate rounded text-[10px] text-primary hover:underline"
+                >
+                  {ar ? "غلاف" : "Cover"}
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </Row>
+  );
+}
+
+function VariantsEditor({ p, setP }: { p: Product; setP: React.Dispatch<React.SetStateAction<Product>> }) {
+  const { lang } = useI18n();
+  const ar = lang === "ar";
+  const rows = [0, 1, 2];
+  const variants = p.variants ?? [];
+  const gallery = [p.image, ...(p.images ?? [])].filter(Boolean);
+
+  function update(i: number, patch: Partial<ProductVariant>) {
+    setP((prev) => {
+      const next = [...(prev.variants ?? [])];
+      while (next.length <= i) next.push({ label: "", price: prev.price });
+      next[i] = { ...next[i], ...patch };
+      return { ...prev, variants: next };
+    });
+  }
+
+  return (
+    <div className="rounded-xl border border-border p-3 space-y-3">
+      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+        {ar ? "المقاسات (حتى 3)" : "Sizes (up to 3)"}
+      </p>
+      {rows.map((i) => {
+        const v = variants[i];
+        return (
+          <div key={i} className="grid gap-2 sm:grid-cols-4">
+            <input
+              value={v?.label ?? ""}
+              onChange={(e) => update(i, { label: e.target.value })}
+              placeholder={ar ? "مثال: 50 مل" : "e.g. 50ml"}
+              className={inputCls}
+            />
+            <input
+              type="number"
+              value={v?.price ?? ""}
+              onChange={(e) => update(i, { price: Number(e.target.value) })}
+              placeholder={ar ? "السعر" : "Price"}
+              className={inputCls}
+            />
+            <input
+              type="number"
+              value={v?.salePrice ?? ""}
+              onChange={(e) => update(i, { salePrice: e.target.value === "" ? undefined : Number(e.target.value) })}
+              placeholder={ar ? "سعر العرض" : "Sale price"}
+              className={inputCls}
+            />
+            <select
+              value={v?.image ?? ""}
+              onChange={(e) => update(i, { image: e.target.value || undefined })}
+              className={inputCls}
+            >
+              <option value="">{ar ? "صورة افتراضية" : "Default image"}</option>
+              {gallery.map((url, gi) => (
+                <option key={url} value={url}>
+                  {(ar ? "صورة " : "Image ") + (gi + 1)}
+                </option>
+              ))}
+            </select>
+          </div>
+        );
+      })}
+      <p className="text-[11px] text-muted-foreground">
+        {ar
+          ? "اترك الاسم فارغًا لتجاهل المقاس."
+          : "Leave the label empty to skip a size."}
+      </p>
     </div>
   );
 }
