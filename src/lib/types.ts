@@ -1,6 +1,15 @@
 export type Availability = "instant" | "preorder";
 export type ProductBadge = "bestseller" | "new";
 
+export interface ProductVariant {
+  /** Custom label, e.g. "50ml" */
+  label: string;
+  price: number;
+  salePrice?: number;
+  /** Optional image shown when this size is selected */
+  image?: string;
+}
+
 export interface Product {
   id: string;
   brand: string;
@@ -18,12 +27,17 @@ export interface Product {
   price: number; // EGP
   salePrice?: number; // EGP, optional
   image: string;
+  /** Extra gallery images (the main `image` stays the cover) */
+  images?: string[];
+  /** Up to 3 custom size options */
+  variants?: ProductVariant[];
   availability: Availability;
   rating?: number;      // 0-5
   reviewCount?: number; // total reviews
   badge?: ProductBadge; // extra badge besides Sale
   bestSeller?: boolean; // for Best Sellers section
 }
+
 
 export interface CartItem {
   productId: string;
