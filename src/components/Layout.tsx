@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useStore } from "@/lib/store";
 import { SocialLinks } from "@/components/SocialLinks";
+import floraLogo from "@/assets/flora-logo.jpg.asset.json";
 
 export function Layout({ children }: { children: ReactNode }) {
   const { t, lang, setLang } = useI18n();
