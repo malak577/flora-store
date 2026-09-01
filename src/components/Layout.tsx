@@ -4,6 +4,7 @@ import { useState, type ReactNode } from "react";
 import { useI18n } from "@/lib/i18n";
 import { useStore } from "@/lib/store";
 import { SocialLinks } from "@/components/SocialLinks";
+import floraLogo from "@/assets/flora-logo.jpg.asset.json";
 
 export function Layout({ children }: { children: ReactNode }) {
   const { t, lang, setLang } = useI18n();
@@ -18,7 +19,11 @@ export function Layout({ children }: { children: ReactNode }) {
       <header className="sticky top-0 z-40 border-b border-border bg-background/85 backdrop-blur-md">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
           <Link to="/" className="flex items-center gap-2 hover:opacity-90 transition">
-            <div className="h-9 w-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-serif text-lg shadow-sm">F</div>
+            <img
+              src={floraLogo.url}
+              alt={t("brand_name")}
+              className="h-10 w-10 rounded-full object-cover shadow-sm"
+            />
             <span className="font-serif text-xl tracking-tight text-charcoal">{t("brand_name")}</span>
           </Link>
 
@@ -93,7 +98,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 py-14 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <div className="flex items-center gap-2">
-              <div className="h-9 w-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-serif">F</div>
+              <img src={floraLogo.url} alt={t("brand_name")} className="h-9 w-9 rounded-full object-cover" />
               <span className="font-serif text-xl">{t("brand_name")}</span>
             </div>
             <p className="mt-3 text-sm text-muted-foreground max-w-xs">{t("footer_tagline")}</p>

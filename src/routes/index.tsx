@@ -7,6 +7,7 @@ import { useStore } from "@/lib/store";
 import { useBrands } from "@/hooks/useBrands";
 import { useI18n } from "@/lib/i18n";
 import { Sparkles, Truck, ShieldCheck, Award } from "lucide-react";
+import floraLogo from "@/assets/flora-logo.jpg.asset.json";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -61,11 +62,11 @@ function Index() {
             </div>
           </FadeIn>
           <FadeIn delay={150}>
-            <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl">
+            <div className="relative aspect-square rounded-3xl overflow-hidden shadow-2xl bg-cream flex items-center justify-center p-6">
               <img
-                src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=1200&auto=format&fit=crop"
-                alt="Skincare products"
-                className="h-full w-full object-cover"
+                src={floraLogo.url}
+                alt={ar ? "شعار فلورا ستور" : "Flora Store logo"}
+                className="h-full w-full object-contain"
               />
             </div>
           </FadeIn>
