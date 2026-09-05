@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { OrderStatus, Product, Availability, ProductVariant } from "@/lib/types";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { fetchOrders, friendlyError, setOrderStatus, removeOrder, receiptUrl, type DbOrder } from "@/lib/orders";
-import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle, Check, X, ClipboardList, Upload, Image as ImageIcon, Receipt } from "lucide-react";
+import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle, Check, X, ClipboardList, Upload, Image as ImageIcon, Receipt, Search } from "lucide-react";
 import { toast } from "sonner";
 import { ShippingPanel } from "@/components/ShippingPanel";
 import { BrandsPanel } from "@/components/BrandsPanel";
