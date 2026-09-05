@@ -929,6 +929,28 @@ function OrdersPanel({ fixedStatus }: { fixedStatus?: OrderStatus } = {}) {
         <span className="ml-auto text-xs text-muted-foreground">{total}</span>
       </div>
 
+      <div className="relative mb-4">
+        <Search className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          type="search"
+          placeholder={ar ? "ابحث برقم الأوردر أو الاسم أو الموبايل..." : "Search by order number, name, phone..."}
+          aria-label={ar ? "بحث في الأوردرات" : "Search orders"}
+          className="w-full rounded-full border border-border bg-background ps-9 pe-9 py-2 text-sm outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/15 transition"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => setQuery("")}
+            className="absolute end-2 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full flex items-center justify-center hover:bg-secondary"
+            aria-label={ar ? "مسح" : "Clear"}
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+
       <div className="flex flex-wrap gap-2 mb-5">
         {(fixedStatus ? [] : filters).map((f) => (
           <button
