@@ -865,14 +865,24 @@ function OrdersPanel({ fixedStatus }: { fixedStatus?: OrderStatus } = {}) {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
   const [status, setStatus] = useState<OrderStatus | "all">(fixedStatus ?? "all");
+  const [query, setQuery] = useState("");
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const id = setTimeout(() => {
+      setPage(0);
+      setSearch(query.trim());
+    }, 300);
+    return () => clearTimeout(id);
+  }, [query]);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetchOrders({ page, pageSize: PAGE_SIZE, status });
+      const res = await fetchOrders({ page, pageSize: PAGE_SIZE, status, search });
       setOrders(res.orders);
       setTotal(res.total);
     } catch (err) {
@@ -880,11 +890,12 @@ function OrdersPanel({ fixedStatus }: { fixedStatus?: OrderStatus } = {}) {
     } finally {
       setLoading(false);
     }
-  }, [page, status, ar]);
+  }, [page, status, search, ar]);
 
   useEffect(() => {
     void load();
   }, [load]);
+
 
   const statusLabel = (s: OrderStatus) =>
     s === "pending" ? t("status_pending") : s === "confirmed" ? t("status_confirmed") : t("status_cancelled");
