@@ -155,10 +155,12 @@ export async function fetchOrders(opts?: {
   page?: number;
   pageSize?: number;
   status?: OrderStatus | "all";
+  search?: string;
 }): Promise<OrdersPage> {
   const page = opts?.page ?? 0;
   const pageSize = opts?.pageSize ?? 20;
   const from = page * pageSize;
+  const term = (opts?.search ?? "").trim();
 
   return withRetry(async () => {
     let query = supabase
@@ -169,11 +171,26 @@ export async function fetchOrders(opts?: {
 
     if (opts?.status && opts.status !== "all") query = query.eq("status", opts.status);
 
+    if (term) {
+      const safe = term.replace(/[,()]/g, " ");
+      const parts = [
+        `customer_name.ilike.%${safe}%`,
+        `customer_phone.ilike.%${safe}%`,
+        `customer_alt_phone.ilike.%${safe}%`,
+        `governorate.ilike.%${safe}%`,
+        `address.ilike.%${safe}%`,
+      ];
+      const digits = safe.replace(/\D/g, "");
+      if (digits && Number(digits) <= Number.MAX_SAFE_INTEGER) parts.push(`order_number.eq.${Number(digits)}`);
+      query = query.or(parts.join(","));
+    }
+
     const { data, error, count } = await query;
     if (error) throw error;
     return { orders: (data ?? []).map(mapRow), total: count ?? 0 };
   });
 }
+
 
 export async function setOrderStatus(id: string, status: OrderStatus) {
   await withRetry(async () => {

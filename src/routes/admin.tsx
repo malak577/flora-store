@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import type { OrderStatus, Product, Availability, ProductVariant } from "@/lib/types";
 import { useAdminAuth } from "@/hooks/useAdminAuth";
 import { fetchOrders, friendlyError, setOrderStatus, removeOrder, receiptUrl, type DbOrder } from "@/lib/orders";
-import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle, Check, X, ClipboardList, Upload, Image as ImageIcon, Receipt } from "lucide-react";
+import { Pencil, Trash2, Plus, LogOut, Settings as Cog, MessageCircle, Check, X, ClipboardList, Upload, Image as ImageIcon, Receipt, Search } from "lucide-react";
 import { toast } from "sonner";
 import { ShippingPanel } from "@/components/ShippingPanel";
 import { BrandsPanel } from "@/components/BrandsPanel";
@@ -865,14 +865,24 @@ function OrdersPanel({ fixedStatus }: { fixedStatus?: OrderStatus } = {}) {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
   const [status, setStatus] = useState<OrderStatus | "all">(fixedStatus ?? "all");
+  const [query, setQuery] = useState("");
+  const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const id = setTimeout(() => {
+      setPage(0);
+      setSearch(query.trim());
+    }, 300);
+    return () => clearTimeout(id);
+  }, [query]);
 
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetchOrders({ page, pageSize: PAGE_SIZE, status });
+      const res = await fetchOrders({ page, pageSize: PAGE_SIZE, status, search });
       setOrders(res.orders);
       setTotal(res.total);
     } catch (err) {
@@ -880,11 +890,12 @@ function OrdersPanel({ fixedStatus }: { fixedStatus?: OrderStatus } = {}) {
     } finally {
       setLoading(false);
     }
-  }, [page, status, ar]);
+  }, [page, status, search, ar]);
 
   useEffect(() => {
     void load();
   }, [load]);
+
 
   const statusLabel = (s: OrderStatus) =>
     s === "pending" ? t("status_pending") : s === "confirmed" ? t("status_confirmed") : t("status_cancelled");
@@ -916,6 +927,28 @@ function OrdersPanel({ fixedStatus }: { fixedStatus?: OrderStatus } = {}) {
         <ClipboardList className="h-5 w-5 text-primary" />
         <h2 className="font-serif text-xl">{t("orders")}</h2>
         <span className="ml-auto text-xs text-muted-foreground">{total}</span>
+      </div>
+
+      <div className="relative mb-4">
+        <Search className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          type="search"
+          placeholder={ar ? "ابحث برقم الأوردر أو الاسم أو الموبايل..." : "Search by order number, name, phone..."}
+          aria-label={ar ? "بحث في الأوردرات" : "Search orders"}
+          className="w-full rounded-full border border-border bg-background ps-9 pe-9 py-2 text-sm outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/15 transition"
+        />
+        {query && (
+          <button
+            type="button"
+            onClick={() => setQuery("")}
+            className="absolute end-2 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full flex items-center justify-center hover:bg-secondary"
+            aria-label={ar ? "مسح" : "Clear"}
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-2 mb-5">
